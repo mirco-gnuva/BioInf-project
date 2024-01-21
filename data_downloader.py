@@ -11,6 +11,7 @@ biocmanager_requirements = ['curatedTCGAData', 'TCGAutils', 'TCGAbiolinks']
 
 # Activate the R package manager (BiocManager)
 utils = importr('utils')
+utils.chooseCRANmirror(ind=1)
 
 # Install BiocManager if not already installed
 
@@ -35,3 +36,5 @@ assays = ["miRNASeqGene", "RNASeq2Gene", "RPPAArray"]
 mo = curatedTCGAData(diseaseCode="PRAD",
                      assays=assays,
                      version="2.0.1", dry_run=False)
+
+pass
