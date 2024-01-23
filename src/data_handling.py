@@ -17,9 +17,6 @@ class EntryNotValidException(Exception):
 class DataLoader:
     filename_regex: str
 
-    def __init__(self, file_path: str):
-        self.file_path = file_path
-
     @logger.catch
     def check_file(self, file_path: str) -> bool:
         logger.debug(f'Checking file {file_path}...')
@@ -37,27 +34,44 @@ class DataLoader:
 
         return valid_file
 
-    def load(self) -> pd.DataFrame:
-        logger.debug(f'Loading file {self.file_path}...')
-        self.check_file(self.file_path)
-        raw_content = self._load()
+    def load(self, file_path: str, skip_checks: bool = False) -> pd.DataFrame:
+        logger.debug(f'Loading file {file_path}...')
+        if not skip_checks:
+            self.check_file(file_path)
+        raw_content = self._load(file_path=file_path)
         content = self._sanitize(raw_content)
-        logger.debug(f'{self.file_path} loaded.')
+        logger.debug(f'{file_path} loaded.')
 
         return content
 
-    def _load(self) -> pd.DataFrame:
+    def _load(self, file_path: str) -> pd.DataFrame:
         raise NotImplementedError
 
     def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
         raise NotImplementedError
 
+    @staticmethod
+    def get_tumor_sample(barcode: str) -> str:
+        sample = barcode[13:15]
+
+        return sample
+
+    def is_primary_tumor(self, barcode: str) -> bool:
+        sample = self.get_tumor_sample(barcode=barcode)
+
+        return sample == '01'
+
+    def retain_main_tumors(self, barcodes: list[str]) -> list[str]:
+        main_tumors = [barcode for barcode in barcodes if self.is_primary_tumor(barcode=barcode)]
+
+        return main_tumors
+
 
 class ClinicalDataLoader(DataLoader):
     filename_regex = r'.*mo_colData\.csv'
 
-    def _load(self) -> pd.DataFrame:
-        return pd.read_csv(self.file_path, sep=',')
+    def _load(self, file_path: str) -> pd.DataFrame:
+        return pd.read_csv(file_path, sep=',')
 
     def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
         buffer = df.copy(deep=True)
@@ -70,10 +84,13 @@ class ClinicalDataLoader(DataLoader):
 class miRNADataLoader(DataLoader):
     filename_regex = r'.*miRNASeqGene.*'
 
-    def _load(self) -> pd.DataFrame:
-        raw = pd.read_csv(self.file_path, sep=',')
+    def _load(self, file_path: str) -> pd.DataFrame:
+        raw = pd.read_csv(file_path, sep=',')
         raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
         raw = raw.set_index('ShortPatientID')
+
+        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
+        raw = raw[main_tumors]
 
         transposed = raw.transpose()
         transposed = transposed.rename(index=lambda x: x[:12])
@@ -86,10 +103,13 @@ class miRNADataLoader(DataLoader):
 class mRNADataLoader(DataLoader):
     filename_regex = r'.*RNASeq2Gene.*'
 
-    def _load(self) -> pd.DataFrame:
-        raw = pd.read_csv(self.file_path, sep=',')
+    def _load(self, file_path: str) -> pd.DataFrame:
+        raw = pd.read_csv(file_path, sep=',')
         raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
         raw = raw.set_index('ShortPatientID')
+
+        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
+        raw = raw[main_tumors]
 
         transposed = raw.transpose()
         transposed = transposed.rename(index=lambda x: x[:12])
@@ -102,10 +122,13 @@ class mRNADataLoader(DataLoader):
 class ProteinsDataLoader(DataLoader):
     filename_regex = '.*RPPAArray.*'
 
-    def _load(self) -> pd.DataFrame:
-        raw = pd.read_csv(self.file_path, sep=',')
+    def _load(self, file_path) -> pd.DataFrame:
+        raw = pd.read_csv(file_path, sep=',')
         raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
         raw = raw.set_index('ShortPatientID')
+
+        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
+        raw = raw[main_tumors]
 
         transposed = raw.transpose()
         transposed = transposed.rename(index=lambda x: x[:12])
