@@ -52,6 +52,22 @@ class DataLoader:
     def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
         raise NotImplementedError
 
+    @staticmethod
+    def get_tumor_sample(barcode: str) -> str:
+        sample = barcode[13:15]
+
+        return sample
+
+    def is_primary_tumor(self, barcode: str) -> bool:
+        sample = self.get_tumor_sample(barcode=barcode)
+
+        return sample == '01'
+
+    def retain_main_tumors(self, barcodes: list[str]) -> list[str]:
+        main_tumors = [barcode for barcode in barcodes if self.is_primary_tumor(barcode=barcode)]
+
+        return main_tumors
+
 
 class ClinicalDataLoader(DataLoader):
     filename_regex = r'.*mo_colData\.csv'
@@ -74,6 +90,10 @@ class miRNADataLoader(DataLoader):
         raw = pd.read_csv(self.file_path, sep=',')
         raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
         raw = raw.set_index('ShortPatientID')
+
+        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
+        raw = raw[main_tumors]
+
         transposed = raw.transpose()
         transposed = transposed.rename(index=lambda x: x[:12])
         return transposed
@@ -89,6 +109,10 @@ class mRNADataLoader(DataLoader):
         raw = pd.read_csv(self.file_path, sep=',')
         raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
         raw = raw.set_index('ShortPatientID')
+
+        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
+        raw = raw[main_tumors]
+
         transposed = raw.transpose()
         transposed = transposed.rename(index=lambda x: x[:12])
         return transposed
@@ -97,3 +121,21 @@ class mRNADataLoader(DataLoader):
         return df
 
 
+class ProteinsDataLoader(DataLoader):
+    filename_regex = '.*RPPAArray.*'
+
+    def _load(self) -> pd.DataFrame:
+        raw = pd.read_csv(self.file_path, sep=',')
+        raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
+        raw = raw.set_index('ShortPatientID')
+
+        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
+        raw = raw[main_tumors]
+
+        transposed = raw.transpose()
+        transposed = transposed.rename(index=lambda x: x[:12])
+
+        return transposed
+
+    def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
+        return df
