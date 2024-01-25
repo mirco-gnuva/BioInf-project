@@ -1,4 +1,4 @@
-from pipeline_steps import PipelineStep, IntersectDataframes, RetainMainTumors
+from pipeline_steps import PipelineStep, IntersectDataframes, RemoveFFPESamples, FilterByNanPercentage, FilterByVariance
 from datetime import datetime, UTC
 from loguru import logger
 import pandas as pd
@@ -22,6 +22,8 @@ class Pipeline:
         return result
 
 
-
 class DownstreamPipeline(Pipeline):
-    steps = [IntersectDataframes()]
+    steps = [IntersectDataframes(),
+             RemoveFFPESamples(),
+             FilterByNanPercentage(threshold=0),
+             FilterByVariance()]

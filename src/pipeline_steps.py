@@ -1,3 +1,5 @@
+from sklearn.preprocessing import LabelEncoder
+from sklearn.compose import ColumnTransformer
 from datetime import datetime, UTC
 from typing import Iterable
 from loguru import logger
@@ -83,7 +85,7 @@ class RemoveFFPESamples(PipelineStep):
             The filtered dataframe.
         """
 
-        data = data[data['patient.samples.sample.2.is_ffpe'] == 'NO']
+        data = data[data['patient.samples.sample.2.is_ffpe'].str.lower() == 'no']
         return data
 
 
@@ -111,3 +113,102 @@ class IntersectDataframes(PipelineStep):
 
         intersection = pd.concat(data, axis=1, join='inner')
         return intersection
+
+
+class FilterByNanPercentage(PipelineStep):
+    """
+    Step to filter by NaN percentage.
+    """
+
+    def __init__(self, threshold: float = 0.1):
+        self.threshold = threshold
+
+    def _call(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Filter the given dataframe by NaN percentage.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to filter.
+
+        Returns
+        -------
+        pd.DataFrame
+            The filtered dataframe.
+        """
+
+        nan_counts = data.isna().sum()
+        nan_percs = nan_counts / len(data)
+
+        filtered = data[nan_percs[nan_percs <= self.threshold].index]
+        return filtered
+
+
+class FilterByVariance(PipelineStep):
+    """
+    Step to filter by variance.
+    """
+
+    def __init__(self, retain_k: int = 1000):
+        self.retail_k = retain_k
+
+    def _call(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Filter the given dataframe by variance.
+
+        The top k features with the highest variance are retained.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to filter.
+
+        Returns
+        -------
+        pd.DataFrame
+            The filtered dataframe.
+        """
+
+        t = data[['ACVRL1', 'AR', 'ASNS', 'ATM', 'BRCA2', 'CDK1', 'EGFR', 'FASN', 'G6PD', 'GAPDH', 'GATA3', 'IGFBP2',
+                  'INPP4B', 'IRS1', 'MYH11', 'NF2', 'PCNA', 'PDCD4', 'PDK1', 'PEA15', 'PRDX1', 'PREX1', 'PTEN', 'RBM15',
+                  'TAZ', 'TFRC', 'TSC1', 'TTF1', 'VHL', 'XRCC1', 'ERCC1', 'MSH2', 'MSH6', 'XBP1']
+        ]
+        columns_tansformer = ColumnTransformer(transformers=[('label_encoder', LabelEncoder(), data.columns)])
+        encoded_data = columns_tansformer.fit_transform(data)
+        variances = encoded_data.var(axis='columns').sort_values(ascending=False)
+        filtered = encoded_data[encoded_data.var(axis=1) >= self.threshold]
+        return filtered
+
+
+class CheckDataConsistency(PipelineStep):
+    """
+    Step to check data consistency.
+    """
+
+    def __init__(self, clinical_data: pd.DataFrame,
+                 mirna_data: pd.DataFrame,
+                 mrna_data: pd.DataFrame,
+                 proteins_data: pd.DataFrame):
+
+        self.clinical_data = clinical_data
+        self.mirna_data = mirna_data
+        self.mrna_data = mrna_data
+        self.proteins_data = proteins_data
+
+    def _call(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Check the consistency of the given dataframe.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to check.
+
+        Returns
+        -------
+        pd.DataFrame
+            The checked dataframe.
+        """
+
+

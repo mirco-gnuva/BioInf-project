@@ -1,0 +1,1 @@
+- Su 22885 features, dopo aver rimosso quelle con dei nan, ne rimangono 22047 (96.3%) che è un numero accettabile.
