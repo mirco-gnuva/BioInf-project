@@ -16,6 +16,7 @@ class EntryNotValidException(Exception):
 
 class DataLoader:
     filename_regex: str
+    name: str
 
     @logger.catch
     def check_file(self, file_path: str) -> bool:
@@ -40,6 +41,7 @@ class DataLoader:
             self.check_file(file_path)
         raw_content = self._load(file_path=file_path)
         content = self._sanitize(raw_content)
+        content.name = self.name
         logger.debug(f'{file_path} loaded.')
 
         return content
@@ -69,6 +71,7 @@ class DataLoader:
 
 class ClinicalDataLoader(DataLoader):
     filename_regex = r'.*mo_colData\.csv'
+    name = 'clinical'
 
     def _load(self, file_path: str) -> pd.DataFrame:
         return pd.read_csv(file_path, sep=',')
@@ -83,6 +86,7 @@ class ClinicalDataLoader(DataLoader):
 
 class miRNADataLoader(DataLoader):
     filename_regex = r'.*miRNASeqGene.*'
+    name = 'miRNA'
 
     def _load(self, file_path: str) -> pd.DataFrame:
         raw = pd.read_csv(file_path, sep=',')
@@ -102,6 +106,7 @@ class miRNADataLoader(DataLoader):
 
 class mRNADataLoader(DataLoader):
     filename_regex = r'.*RNASeq2Gene.*'
+    name = 'mRNA'
 
     def _load(self, file_path: str) -> pd.DataFrame:
         raw = pd.read_csv(file_path, sep=',')
@@ -121,6 +126,7 @@ class mRNADataLoader(DataLoader):
 
 class ProteinsDataLoader(DataLoader):
     filename_regex = '.*RPPAArray.*'
+    name = 'protein'
 
     def _load(self, file_path) -> pd.DataFrame:
         raw = pd.read_csv(file_path, sep=',')

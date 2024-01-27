@@ -1,6 +1,6 @@
 from sklearn.preprocessing import LabelEncoder
 from sklearn.compose import ColumnTransformer
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from typing import Iterable
 from loguru import logger
 import pandas as pd
@@ -27,9 +27,9 @@ class PipelineStep:
 
         logger.debug(f'Running {self.__class__.__name__}...')
 
-        start = datetime.now(tz=UTC)
+        start = datetime.now()
         result = self._call(data=data)
-        end = datetime.now(tz=UTC)
+        end = datetime.now()
 
         logger.debug(f'{self.__class__.__name__} ran in {end - start}.')
 
@@ -85,7 +85,7 @@ class RemoveFFPESamples(PipelineStep):
             The filtered dataframe.
         """
 
-        data = data[data['patient.samples.sample.2.is_ffpe'].str.lower() == 'no']
+        data = data[data['clinical_patient.samples.sample.2.is_ffpe'].str.lower() == 'no']
         return data
 
 
@@ -109,9 +109,11 @@ class IntersectDataframes(PipelineStep):
             The intersected dataframe.
         """
 
-        data = list(data)
+        data_copy = [df.copy() for df in data]
+        for name, df in zip([df.name for df in data], data_copy):
+            df.columns = [f'{name}_{col}' for col in df.columns]
 
-        intersection = pd.concat(data, axis=1, join='inner')
+        intersection = pd.concat(data_copy, axis=1, join='inner')
         return intersection
 
 
@@ -151,7 +153,7 @@ class FilterByVariance(PipelineStep):
     """
 
     def __init__(self, retain_k: int = 1000):
-        self.retail_k = retain_k
+        self.retain_k = retain_k
 
     def _call(self, data: pd.DataFrame) -> pd.DataFrame:
         """
@@ -170,15 +172,37 @@ class FilterByVariance(PipelineStep):
             The filtered dataframe.
         """
 
-        t = data[['ACVRL1', 'AR', 'ASNS', 'ATM', 'BRCA2', 'CDK1', 'EGFR', 'FASN', 'G6PD', 'GAPDH', 'GATA3', 'IGFBP2',
-                  'INPP4B', 'IRS1', 'MYH11', 'NF2', 'PCNA', 'PDCD4', 'PDK1', 'PEA15', 'PRDX1', 'PREX1', 'PTEN', 'RBM15',
-                  'TAZ', 'TFRC', 'TSC1', 'TTF1', 'VHL', 'XRCC1', 'ERCC1', 'MSH2', 'MSH6', 'XBP1']
-        ]
-        columns_tansformer = ColumnTransformer(transformers=[('label_encoder', LabelEncoder(), data.columns)])
-        encoded_data = columns_tansformer.fit_transform(data)
-        variances = encoded_data.var(axis='columns').sort_values(ascending=False)
-        filtered = encoded_data[encoded_data.var(axis=1) >= self.threshold]
+        encoded_data = EncodeCategoricalData()(data=data)
+        variances = encoded_data.var(axis='rows').sort_values(ascending=False)
+        filtered = data[variances[:self.retain_k].index]
         return filtered
+
+
+class EncodeCategoricalData(PipelineStep):
+    """
+    Step to encode categorical data.
+    """
+
+    def _call(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Encode the categorical data of the given dataframe.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to encode.
+
+        Returns
+        -------
+        pd.DataFrame
+            The encoded dataframe.
+        """
+
+        encoded_data = data.copy(deep=True)
+
+        for col in [col for col in encoded_data.columns if encoded_data[col].dtype in ['string', 'category']]:
+            encoded_data[col] = LabelEncoder().fit_transform(encoded_data[col])
+        return encoded_data
 
 
 class CheckDataConsistency(PipelineStep):
@@ -190,7 +214,6 @@ class CheckDataConsistency(PipelineStep):
                  mirna_data: pd.DataFrame,
                  mrna_data: pd.DataFrame,
                  proteins_data: pd.DataFrame):
-
         self.clinical_data = clinical_data
         self.mirna_data = mirna_data
         self.mrna_data = mrna_data
@@ -211,4 +234,31 @@ class CheckDataConsistency(PipelineStep):
             The checked dataframe.
         """
 
+        pass
 
+
+class CastDataTypes(PipelineStep):
+    """
+    Step to cast data types.
+    """
+
+    def _call(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Cast the data types of the given dataframe.
+
+        This step assumes that all columns with dtype 'object' are strings and no nan is present.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to cast.
+
+        Returns
+        -------
+        pd.DataFrame
+            The cast dataframe.
+        """
+
+        data_copy = data.copy(deep=True)
+        for col in [col for col in data_copy.columns if data_copy[col].dtype == 'object']:
+            data_copy[col] = data_copy[col].astype('string')
+        return data_copy
