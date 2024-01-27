@@ -1,20 +1,24 @@
-from pipeline_steps import (PipelineStep, IntersectDataframes, RemoveFFPESamples, FilterByNanPercentage, FilterByVariance,
-                            CastDataTypes)
-from datetime import datetime, timezone
+from typing import Iterable
+
+from pipeline_steps import (PipelineStep, IntersectDataframes, RemoveFFPESamples, FilterByNanPercentage,
+                            FilterByVariance, CastDataTypes, RetainMainTumors, TruncateBarcode)
+from datetime import datetime
 from loguru import logger
 import pandas as pd
+
+from src.models import Data
 
 
 class Pipeline:
     steps: list[PipelineStep]
 
-    def __call__(self, data: pd.DataFrame | list[pd.DataFrame], *args, **kwargs):
+    def __call__(self, data: Data | list[Data], *args, **kwargs) -> Data | Iterable[Data]:
         logger.debug(f'Running {self.__class__.__name__} pipeline...')
         start = datetime.now()
 
-        result = self.steps.pop(0)(data=data)
+        result = self.steps[0](data=data)
 
-        for step in self.steps:
+        for step in self.steps[1:]:
             result = step(data=result)
 
         end = datetime.now()
@@ -23,9 +27,34 @@ class Pipeline:
         return result
 
 
-class DownstreamPipeline(Pipeline):
-    steps = [IntersectDataframes(),
-             RemoveFFPESamples(),
+class PhenotypePipeline(Pipeline):
+    steps = [RemoveFFPESamples()]
+
+
+class ExperimentPipeline(Pipeline):
+    data_type: str
+    steps = [RetainMainTumors(),
              FilterByNanPercentage(threshold=0),
              CastDataTypes(),
-             FilterByVariance()]
+             FilterByVariance(),
+             TruncateBarcode()]
+
+    def __call__(self, data: Data | list[Data], *args, **kwargs):
+        with logger.contextualize(data_type=self.data_type):
+            return super().__call__(data=data, *args, **kwargs)
+
+
+class miRNAPipeline(ExperimentPipeline):
+    data_type = 'miRNA'
+
+
+class mRNAPipeline(ExperimentPipeline):
+    data_type = 'mRNA'
+
+
+class ProteinsPipeline(ExperimentPipeline):
+    data_type = 'Proteins'
+
+
+class MultiDataframesPipeline(Pipeline):
+    steps = [IntersectDataframes()]

@@ -1,6 +1,6 @@
-from data_handling import ProteinsDataLoader, miRNADataLoader, mRNADataLoader, ClinicalDataLoader
-from pipelines import DownstreamPipeline
-from analysis import get_nan_percentage
+from data_handling import ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader
+from pipelines import (PhenotypePipeline, MultiDataframesPipeline, miRNAPipeline, mRNAPipeline,
+                       ProteinsPipeline)
 
 proteins_loader = ProteinsDataLoader()
 
@@ -14,16 +14,20 @@ mrna_loader = mRNADataLoader()
 
 mrna_data = mrna_loader.load(file_path='../data/mo_PRAD_RNASeq2Gene-20160128.csv')
 
-clinical_loader = ClinicalDataLoader()
+phenotype_loader = PhenotypeDataLoader()
 
-clinical_data = clinical_loader.load(file_path='../data/mo_colData.csv')
+phenotype_data = phenotype_loader.load(file_path='../data/mo_colData.csv')
 
-downstream_pipeline = DownstreamPipeline()
+phenotype_pipeline = PhenotypePipeline()
+phenotype_data = phenotype_pipeline(data=phenotype_data)
 
-result = downstream_pipeline(data=[proteins_data, mirna_data, mrna_data, clinical_data])
+proteins_data = ProteinsPipeline()(data=proteins_data)
+mirna_data = miRNAPipeline()(data=mirna_data)
+mrna_data = mRNAPipeline()(data=mrna_data)
 
-nan_percs = get_nan_percentage(data=result)
+multi_dataframes_pipeline = MultiDataframesPipeline()
 
-nan_percs.sort(key=lambda x: x.percentage, reverse=True)
+proteins_data, mirna_data, mrna_data, phenotype_data = multi_dataframes_pipeline(
+    data=[proteins_data, mirna_data, mrna_data, phenotype_data])
 
 pass

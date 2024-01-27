@@ -1,4 +1,4 @@
-from data_handling import DataLoader, ClinicalDataLoader, miRNADataLoader, mRNADataLoader, ProteinsDataLoader
+from data_handling import DataLoader, PhenotypeDataLoader, miRNADataLoader, mRNADataLoader, ProteinsDataLoader
 import streamlit as st
 import pandas as pd
 
@@ -13,7 +13,7 @@ def data_uploader(data_loader: DataLoader) -> pd.DataFrame:
         return df
 
 
-data_uploader(data_loader=ClinicalDataLoader())
+data_uploader(data_loader=PhenotypeDataLoader())
 
 
 

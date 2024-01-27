@@ -1,4 +1,5 @@
 from loguru import logger
+from models import Data, PhenotypeData, mRNAData, miRNAData, ProteinsData
 import pandas as pd
 import os.path
 import re
@@ -35,7 +36,7 @@ class DataLoader:
 
         return valid_file
 
-    def load(self, file_path: str, skip_checks: bool = False) -> pd.DataFrame:
+    def load(self, file_path: str, skip_checks: bool = False) -> Data:
         logger.debug(f'Loading file {file_path}...')
         if not skip_checks:
             self.check_file(file_path)
@@ -46,10 +47,10 @@ class DataLoader:
 
         return content
 
-    def _load(self, file_path: str) -> pd.DataFrame:
+    def _load(self, file_path: str) -> Data:
         raise NotImplementedError
 
-    def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sanitize(self, df: pd.DataFrame) -> Data:
         raise NotImplementedError
 
     @staticmethod
@@ -69,38 +70,34 @@ class DataLoader:
         return main_tumors
 
 
-class ClinicalDataLoader(DataLoader):
+class PhenotypeDataLoader(DataLoader):
     filename_regex = r'.*mo_colData\.csv'
     name = 'clinical'
 
-    def _load(self, file_path: str) -> pd.DataFrame:
-        return pd.read_csv(file_path, sep=',')
+    def _load(self, file_path: str) -> PhenotypeData:
+        return PhenotypeData(pd.read_csv(file_path, sep=','))
 
-    def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sanitize(self, df: PhenotypeData) -> PhenotypeData:
         buffer = df.copy(deep=True)
         buffer = buffer.set_index('patientID')
         buffer.index.name = 'ShortPatientID'
         buffer = buffer.drop(columns=['Unnamed: 0'])
-        return buffer
+        return PhenotypeData(buffer)
 
 
 class miRNADataLoader(DataLoader):
     filename_regex = r'.*miRNASeqGene.*'
     name = 'miRNA'
 
-    def _load(self, file_path: str) -> pd.DataFrame:
+    def _load(self, file_path: str) -> miRNAData:
         raw = pd.read_csv(file_path, sep=',')
         raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
         raw = raw.set_index('ShortPatientID')
 
-        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
-        raw = raw[main_tumors]
-
         transposed = raw.transpose()
-        transposed = transposed.rename(index=lambda x: x[:12])
-        return transposed
+        return miRNAData(transposed)
 
-    def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sanitize(self, df: miRNAData) -> miRNAData:
         return df
 
 
@@ -108,19 +105,15 @@ class mRNADataLoader(DataLoader):
     filename_regex = r'.*RNASeq2Gene.*'
     name = 'mRNA'
 
-    def _load(self, file_path: str) -> pd.DataFrame:
+    def _load(self, file_path: str) -> mRNAData:
         raw = pd.read_csv(file_path, sep=',')
         raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
         raw = raw.set_index('ShortPatientID')
 
-        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
-        raw = raw[main_tumors]
-
         transposed = raw.transpose()
-        transposed = transposed.rename(index=lambda x: x[:12])
-        return transposed
+        return mRNAData(transposed)
 
-    def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sanitize(self, df: mRNAData) -> mRNAData:
         return df
 
 
@@ -128,18 +121,13 @@ class ProteinsDataLoader(DataLoader):
     filename_regex = '.*RPPAArray.*'
     name = 'protein'
 
-    def _load(self, file_path) -> pd.DataFrame:
+    def _load(self, file_path) -> ProteinsData:
         raw = pd.read_csv(file_path, sep=',')
         raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
         raw = raw.set_index('ShortPatientID')
 
-        main_tumors = self.retain_main_tumors(barcodes=raw.columns)
-        raw = raw[main_tumors]
-
         transposed = raw.transpose()
-        transposed = transposed.rename(index=lambda x: x[:12])
+        return ProteinsData(transposed)
 
-        return transposed
-
-    def _sanitize(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sanitize(self, df: ProteinsData) -> ProteinsData:
         return df
