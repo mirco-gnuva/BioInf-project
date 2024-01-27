@@ -1,7 +1,7 @@
 from typing import Iterable
 
 from pipeline_steps import (PipelineStep, IntersectDataframes, RemoveFFPESamples, FilterByNanPercentage,
-                            FilterByVariance, CastDataTypes, RetainMainTumors, TruncateBarcode)
+                            FilterByVariance, CastDataTypes, RetainMainTumors, TruncateBarcode, ZScoreScaler)
 from datetime import datetime
 from loguru import logger
 import pandas as pd
@@ -35,9 +35,9 @@ class ExperimentPipeline(Pipeline):
     data_type: str
     steps = [RetainMainTumors(),
              FilterByNanPercentage(threshold=0),
-             CastDataTypes(),
              FilterByVariance(),
-             TruncateBarcode()]
+             TruncateBarcode(),
+             ZScoreScaler()]
 
     def __call__(self, data: Data | list[Data], *args, **kwargs):
         with logger.contextualize(data_type=self.data_type):

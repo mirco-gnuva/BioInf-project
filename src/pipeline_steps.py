@@ -1,4 +1,5 @@
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from tqdm.auto import tqdm
 from datetime import datetime
 from itertools import chain
 from typing import Iterable
@@ -130,7 +131,7 @@ class IntersectDataframes(PipelineStep):
         data_copy = [cls(data.reindex(index=index)) for cls, data in zip([df.__class__ for df in data], data_copy)]
 
         resume = '\n\t'.join(
-            [f'{len(intersected)}/{len({original})}' for original, intersected in zip(data, data_copy)])
+            [f'{len(intersected)}/{len(original)}' for original, intersected in zip(data, data_copy)])
 
         logger.debug(f'Dataframes intersected, preserved: \n\t{resume}')
 
@@ -317,4 +318,34 @@ class TruncateBarcode(PipelineStep):
 
         data_copy = data.copy(deep=True)
         data_copy.index = data_copy.index.str[:12]
+        return data_copy
+
+
+class ZScoreScaler(PipelineStep):
+    """
+    Step to scale the data using the Z-score.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scaler = StandardScaler()
+
+    def _call(self, data: Data) -> Data:
+        """Scale the data using the Z-score.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to scale.
+
+        Returns
+        -------
+        pd.DataFrame
+            The scaled dataframe.
+        """
+
+        data_copy = data.copy(deep=True)
+        for col in tqdm(data_copy.columns, desc='Scaling data', leave=False):
+            data_copy[col] = self.scaler.fit_transform(data_copy[col].values.reshape(-1, 1))
+
         return data_copy
