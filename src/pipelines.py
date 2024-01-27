@@ -34,7 +34,7 @@ class PhenotypePipeline(Pipeline):
 class ExperimentPipeline(Pipeline):
     data_type: str
     steps = [RetainMainTumors(),
-             FilterByNanPercentage(threshold=0),
+             FilterByNanPercentage(),
              FilterByVariance(),
              TruncateBarcode(),
              ZScoreScaler()]
@@ -54,6 +54,12 @@ class mRNAPipeline(ExperimentPipeline):
 
 class ProteinsPipeline(ExperimentPipeline):
     data_type = 'Proteins'
+
+
+class SubTypesPipeline(ExperimentPipeline):
+    data_type = 'Subtypes'
+    steps = [RetainMainTumors(),
+             TruncateBarcode()]
 
 
 class MultiDataframesPipeline(Pipeline):

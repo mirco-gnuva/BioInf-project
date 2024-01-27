@@ -1,5 +1,5 @@
 from loguru import logger
-from models import Data, PhenotypeData, mRNAData, miRNAData, ProteinsData
+from models import Data, PhenotypeData, mRNAData, miRNAData, ProteinsData, SubtypesData
 import pandas as pd
 import os.path
 import re
@@ -128,6 +128,21 @@ class ProteinsDataLoader(DataLoader):
 
         transposed = raw.transpose()
         return ProteinsData(transposed)
+
+    def _sanitize(self, df: ProteinsData) -> ProteinsData:
+        return df
+
+
+class SubtypesDataLoader(DataLoader):
+    filename_regex = 'subtypes.csv'
+    name = 'subtypes'
+
+    def _load(self, file_path) -> SubtypesData:
+        raw = pd.read_csv(file_path, sep=',')
+        raw.columns = ['ShortPatientID'] + list(raw.columns[1:])
+        raw = raw.set_index('ShortPatientID')
+
+        return SubtypesData(raw)
 
     def _sanitize(self, df: ProteinsData) -> ProteinsData:
         return df

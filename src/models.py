@@ -25,4 +25,8 @@ class PhenotypeData(AbstractData):
     name = 'Phenotype'
 
 
+class SubtypesData(AbstractData):
+    name = 'Subtypes'
+
+
 Data = Union[ProteinsData, mRNAData, miRNAData]

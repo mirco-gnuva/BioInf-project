@@ -20,10 +20,11 @@ for (req in bioc_requirements){
 
 
 # Import libraries
-library("curatedTCGAData");
+library("curatedTCGAData")
+library(TCGAbiolinks)
 
 # Define download directory
-directory_path = './data'
+directory_path = './data/'
 
 if (file.exists(directory_path)) {
   print(paste("Directory", directory_path, "already exists."))
@@ -49,5 +50,15 @@ mo <- curatedTCGAData(diseaseCode = "PRAD",
 mo;
 
 
-# Export the downloaded data to 'data' folder
-exportClass(mo, dir = './data', fmt = "csv", ext = ".csv");
+# Export the downloaded data to directory_path folder
+exportClass(mo, dir = directory_path, fmt = "csv", ext = ".csv");
+
+
+# Download disease subtypes from TCGAbiolinks:
+subtypes <- as.data.frame(TCGAbiolinks::PanCancerAtlas_subtypes());
+subtypes <- subtypes[subtypes$cancer.type == "PRAD", ];
+subtypes_path <- paste(directory_path, "subtypes.csv", sep="")
+
+print(paste("Saving subtypes to", subtypes_path))
+
+write.csv(subtypes, file = subtypes_path, row.names = FALSE)

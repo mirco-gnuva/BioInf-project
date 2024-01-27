@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 import pandas as pd
 
+from src.models import SubtypesData
+
 
 class NanPercentage(BaseModel):
     column: str
@@ -27,3 +29,23 @@ def get_nan_percentage(data: pd.DataFrame) -> list[NanPercentage]:
                  for col, count in nan_counts]
 
     return nan_percs
+
+
+def get_subtypes_distribution(data: SubtypesData) -> pd.Series:
+    """Return the distribution of subtypes in the given dataframe.
+
+    Parameters
+    ----------
+    data : SubtypesData
+        The dataframe to analyze.
+
+    Returns
+    -------
+    pd.Series
+        The distribution of subtypes.
+    """
+    counts = data.groupby(['Subtype_Integrative']).count()[data.columns[0]]
+    counts.name = 'count'
+    pass
+
+    return data.groupby(['Subtype_Integrative']).count()
