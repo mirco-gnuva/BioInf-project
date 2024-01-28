@@ -1,7 +1,9 @@
 from data_handling import ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader, SubtypesDataLoader
 from pipelines import (PhenotypePipeline, MultiDataframesPipeline, miRNAPipeline, mRNAPipeline,
-                       ProteinsPipeline, SubTypesPipeline)
+                       ProteinsPipeline, SubTypesPipeline, DownstreamPipeline)
 from src.analysis import get_subtypes_distribution
+from src.pipeline_steps import IntersectDataframes, SimilarityMatrices, EncodeCategoricalData
+from sklearn.metrics.cluster import rand_score
 
 proteins_loader = ProteinsDataLoader()
 proteins_data = proteins_loader.load(file_path='../data/mo_PRAD_RPPAArray-20160128.csv')
@@ -25,9 +27,20 @@ subtypes_data = SubTypesPipeline()(data=subtypes_data)
 
 multi_dataframes_pipeline = MultiDataframesPipeline()
 
-proteins_data, mirna_data, mrna_data, phenotype_data, subtypes_data = multi_dataframes_pipeline(
-    data=[proteins_data, mirna_data, mrna_data, phenotype_data, subtypes_data])
+proteins_data, mirna_data, mrna_data, phenotype_data, subtypes_data = IntersectDataframes()(data=[proteins_data, mirna_data, mrna_data, phenotype_data, subtypes_data])
+sim_proteins, sim_mirna, sim_mrna = SimilarityMatrices()(data=[proteins_data, mirna_data, mrna_data])
 
-get_subtypes_distribution(subtypes_data)
+
+proteins_data = proteins_data.sort_index()
+mirna_data = mirna_data.sort_index()
+mrna_data = mrna_data.sort_index()
+phenotype_data = phenotype_data.sort_index()
+subtypes_data = subtypes_data.sort_index()
+
+downstream_pipeline = DownstreamPipeline()
+kmeoids = downstream_pipeline(data=[sim_proteins, sim_mirna, sim_mrna])
+
+
+encoded_subtypes = EncodeCategoricalData()(data=subtypes_data)['Subtype_Integrative']
 
 pass

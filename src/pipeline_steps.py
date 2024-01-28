@@ -1,12 +1,15 @@
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from tqdm.auto import tqdm
+import numpy as np
+import snf.compute
+from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler
 from datetime import datetime
 from itertools import chain
 from typing import Iterable
+from src.models import Data, ProteinsData, miRNAData, mRNAData
+from tqdm.auto import tqdm
 from loguru import logger
+from snf import compute
 import pandas as pd
-
-from src.models import Data
+from sklearn_extra.cluster import KMedoids
 
 
 class PipelineStep:
@@ -349,3 +352,182 @@ class ZScoreScaler(PipelineStep):
             data_copy[col] = self.scaler.fit_transform(data_copy[col].values.reshape(-1, 1))
 
         return data_copy
+
+
+class SimilarityMatrices(PipelineStep):
+    """
+    Step to compute the similarity matrix.
+    """
+
+    def _call(self, data: list[Data]) -> list[pd.DataFrame]:
+        """Compute the similarity matrix of the given dataframe.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to process.
+
+        Returns
+        -------
+        pd.DataFrame
+            The similarity matrix.
+        """
+
+        logger.debug(f'Computing similarity matrix...')
+        encoder = EncodeCategoricalData()
+        encoded_data = [encoder(d) for d in data]
+        matrices = compute.make_affinity(encoded_data, K=20, mu=0.5, normalize=False)
+        index = data[0].index
+        similarity_matrix = [pd.DataFrame(matrix, index=index, columns=index) for matrix in matrices]
+        logger.debug('Similarity matrix computed.')
+
+        return similarity_matrix
+
+
+class DownstreamStep:
+    """
+        Step to represent a pipeline step.
+        """
+
+    def __call__(self, data: Data | list[Data], *args, **kwargs) -> Data | list[Data]:
+        """Run the pipeline step.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to process.
+
+        Returns
+        -------
+        pd.DataFrame
+            The processed dataframe.
+        """
+
+        logger.debug(f'Running {self.__class__.__name__}...')
+
+        start = datetime.now()
+        result = self._call(data=data)
+        end = datetime.now()
+
+        logger.debug(f'{self.__class__.__name__} ran in {end - start}.')
+
+        return result
+
+    def _call(self, data: Data) -> Data:
+        raise NotImplementedError
+
+
+class ComputeMatricesAverage(DownstreamStep):
+    """
+    Step to compute the similarity matrix.
+    """
+
+    def _call(self, data: list[pd.DataFrame]) -> pd.DataFrame:
+        """Compute the similarity matrix of the given dataframe.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to process.
+
+        Returns
+        -------
+        pd.DataFrame
+            The similarity matrix.
+        """
+
+        logger.debug('Computing average...')
+
+        arrays = [df.to_numpy() for df in data]
+        stack = np.dstack(arrays)
+        average = np.mean(stack, axis=2)
+
+        result = pd.DataFrame(average, index=data[0].index, columns=data[0].index)
+
+        logger.debug('Average computed.')
+
+        return result
+
+
+class ComputeSNF(DownstreamStep):
+    """
+    Step to compute the similarity matrix.
+    """
+
+    def _call(self, data: list[pd.DataFrame]) -> pd.DataFrame:
+        """Compute the similarity matrix of the given dataframe.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to process.
+
+        Returns
+        -------
+        pd.DataFrame
+            The similarity matrix.
+        """
+
+        logger.debug('Computing SNF...')
+
+        fusion = snf.compute.snf(data, K=20, t=20)
+        result = pd.DataFrame(fusion, index=data[0].index, columns=data[0].index)
+
+        logger.debug('SNF computed.')
+
+        return result
+
+
+class ComputeKMedoids(DownstreamStep):
+    """
+    Step to compute the similarity matrix.
+    """
+
+    def _call(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Compute the similarity matrix of the given dataframe.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to process.
+
+        Returns
+        -------
+        pd.DataFrame
+            The similarity matrix.
+        """
+
+        logger.debug('Computing KMedoids...')
+        scaler = MinMaxScaler()
+        distances = scaler.fit_transform(1 - data)
+
+        clusters = KMedoids(n_clusters=3, random_state=0, metric='precomputed', method='pam').fit(distances)
+
+        logger.debug('Clustering computed.')
+
+        return clusters
+
+
+class SortByIndex(PipelineStep):
+    """
+    Step to sort by index.
+    """
+
+    def _call(self, data: Data | list[Data]) -> Data | list[Data]:
+        """Sort the given dataframe by index.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to sort.
+
+        Returns
+        -------
+        pd.DataFrame
+            The sorted dataframe.
+        """
+
+        data_sorted = data.__class__(data.sort_index()) if isinstance(data, Data) else [df.__class__(df.sort_index())
+                                                                                        for df in data]
+
+        return data_sorted

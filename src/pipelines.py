@@ -1,12 +1,11 @@
-from typing import Iterable
 
 from pipeline_steps import (PipelineStep, IntersectDataframes, RemoveFFPESamples, FilterByNanPercentage,
-                            FilterByVariance, CastDataTypes, RetainMainTumors, TruncateBarcode, ZScoreScaler)
+                            FilterByVariance, RetainMainTumors, TruncateBarcode, ZScoreScaler, SimilarityMatrices,
+                            ComputeSNF, ComputeKMedoids, SortByIndex, ComputeMatricesAverage)
 from datetime import datetime
-from loguru import logger
-import pandas as pd
-
 from src.models import Data
+from typing import Iterable
+from loguru import logger
 
 
 class Pipeline:
@@ -63,4 +62,11 @@ class SubTypesPipeline(ExperimentPipeline):
 
 
 class MultiDataframesPipeline(Pipeline):
-    steps = [IntersectDataframes()]
+    steps = [IntersectDataframes(),
+             SortByIndex(),
+             SimilarityMatrices()]
+
+
+class DownstreamPipeline(Pipeline):
+    steps = [ComputeMatricesAverage(),
+             ComputeKMedoids()]
