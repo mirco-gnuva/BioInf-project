@@ -63,10 +63,9 @@ class SubTypesPipeline(ExperimentPipeline):
 
 class MultiDataframesPipeline(Pipeline):
     steps = [IntersectDataframes(),
-             SortByIndex(),
-             SimilarityMatrices()]
+             SortByIndex()]
 
 
 class DownstreamPipeline(Pipeline):
-    steps = [ComputeMatricesAverage(),
+    steps = [ComputeSNF(),
              ComputeKMedoids()]

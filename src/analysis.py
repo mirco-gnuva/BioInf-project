@@ -1,12 +1,7 @@
-from pydantic import BaseModel
+from sklearn.metrics import rand_score, adjusted_rand_score, normalized_mutual_info_score
+
+from src.models import SubtypesData, NanPercentage, Metrics
 import pandas as pd
-
-from src.models import SubtypesData
-
-
-class NanPercentage(BaseModel):
-    column: str
-    percentage: float
 
 
 def get_nan_percentage(data: pd.DataFrame) -> list[NanPercentage]:
@@ -46,6 +41,28 @@ def get_subtypes_distribution(data: SubtypesData) -> pd.Series:
     """
     counts = data.groupby(['Subtype_Integrative']).count()[data.columns[0]]
     counts.name = 'count'
-    pass
 
-    return data.groupby(['Subtype_Integrative']).count()
+    return counts
+
+
+def get_metrics(true_labels: pd.Series, predicted_labels: pd.Series) -> Metrics:
+    """Return the metrics for the given true and predicted labels.
+
+    Parameters
+    ----------
+    true_labels : pd.Series
+        The true labels.
+    predicted_labels : pd.Series
+        The predicted labels.
+
+    Returns
+    -------
+    Metrics
+        The metrics.
+    """
+
+    metrics = Metrics(rand_score=rand_score(true_labels, predicted_labels),
+                      adjusted_rand_score=adjusted_rand_score(true_labels, predicted_labels),
+                      normalized_mutual_info_score=normalized_mutual_info_score(true_labels, predicted_labels))
+
+    return metrics

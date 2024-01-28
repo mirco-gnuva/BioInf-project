@@ -1,4 +1,4 @@
-from data_handling import DataLoader, PhenotypeDataLoader, miRNADataLoader, mRNADataLoader, ProteinsDataLoader
+from data_loaders import DataLoader, PhenotypeDataLoader, miRNADataLoader, mRNADataLoader, ProteinsDataLoader
 import streamlit as st
 import pandas as pd
 

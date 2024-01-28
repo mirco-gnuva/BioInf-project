@@ -4,7 +4,7 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler
 from datetime import datetime
 from itertools import chain
 from typing import Iterable
-from src.models import Data, ProteinsData, miRNAData, mRNAData
+from src.models import Data, ProteinsData, miRNAData, mRNAData, Metrics
 from tqdm.auto import tqdm
 from loguru import logger
 from snf import compute
@@ -376,7 +376,7 @@ class SimilarityMatrices(PipelineStep):
         logger.debug(f'Computing similarity matrix...')
         encoder = EncodeCategoricalData()
         encoded_data = [encoder(d) for d in data]
-        matrices = compute.make_affinity(encoded_data, K=20, mu=0.5, normalize=False)
+        matrices = compute.make_affinity(encoded_data, K=20, normalize=False)
         index = data[0].index
         similarity_matrix = [pd.DataFrame(matrix, index=index, columns=index) for matrix in matrices]
         logger.debug('Similarity matrix computed.')
@@ -406,14 +406,14 @@ class DownstreamStep:
         logger.debug(f'Running {self.__class__.__name__}...')
 
         start = datetime.now()
-        result = self._call(data=data)
+        result = self._call(data=data, *args, **kwargs)
         end = datetime.now()
 
         logger.debug(f'{self.__class__.__name__} ran in {end - start}.')
 
         return result
 
-    def _call(self, data: Data) -> Data:
+    def _call(self, data: Data, *args, **kwargs) -> Data:
         raise NotImplementedError
 
 
@@ -422,7 +422,7 @@ class ComputeMatricesAverage(DownstreamStep):
     Step to compute the similarity matrix.
     """
 
-    def _call(self, data: list[pd.DataFrame]) -> pd.DataFrame:
+    def _call(self, data: list[pd.DataFrame], *args, **kwargs) -> pd.DataFrame:
         """Compute the similarity matrix of the given dataframe.
 
         Parameters
@@ -454,7 +454,7 @@ class ComputeSNF(DownstreamStep):
     Step to compute the similarity matrix.
     """
 
-    def _call(self, data: list[pd.DataFrame]) -> pd.DataFrame:
+    def _call(self, data: list[pd.DataFrame], *args, **kwargs) -> pd.DataFrame:
         """Compute the similarity matrix of the given dataframe.
 
         Parameters
@@ -483,13 +483,15 @@ class ComputeKMedoids(DownstreamStep):
     Step to compute the similarity matrix.
     """
 
-    def _call(self, data: pd.DataFrame) -> pd.DataFrame:
+    def _call(self, data: pd.DataFrame, clusters_n: int = 3, *args, **kwargs) -> pd.DataFrame:
         """Compute the similarity matrix of the given dataframe.
 
         Parameters
         ----------
         data : pd.DataFrame
             The dataframe to process.
+        clusters_n : int
+            The number of clusters to be detected.
 
         Returns
         -------
@@ -499,9 +501,10 @@ class ComputeKMedoids(DownstreamStep):
 
         logger.debug('Computing KMedoids...')
         scaler = MinMaxScaler()
-        distances = scaler.fit_transform(1 - data)
+        normalized_similarity = scaler.fit_transform(data)
+        distances = scaler.fit_transform(1 - normalized_similarity)
 
-        clusters = KMedoids(n_clusters=3, random_state=0, metric='precomputed', method='pam').fit(distances)
+        clusters = KMedoids(n_clusters=clusters_n, random_state=0, metric='precomputed', method='pam').fit(distances)
 
         logger.debug('Clustering computed.')
 
@@ -513,7 +516,7 @@ class SortByIndex(PipelineStep):
     Step to sort by index.
     """
 
-    def _call(self, data: Data | list[Data]) -> Data | list[Data]:
+    def _call(self, data: Data | list[Data], *args, **kwargs) -> Data | list[Data]:
         """Sort the given dataframe by index.
 
         Parameters
