@@ -15,7 +15,8 @@ PHENOTYPE_PATH = '../data/mo_colData.csv'
 SUBTYPES_PATH = '../data/subtypes.csv'
 
 logger.remove()
-logger.add(stdout, level='DEBUG', colorize=True, format='<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra[data_type]} | <level>{message}</level>')
+logger.add(stdout, level='DEBUG', colorize=True,
+           format='<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra[data_type]} | <level>{message}</level>')
 logger.configure(extra={'data_type': 'None'})
 
 
@@ -45,13 +46,11 @@ subtypes_data = get_data(dataset_path=SUBTYPES_PATH,
                          loader=SubtypesDataLoader(),
                          pipeline=SubTypesPipeline())
 
-
-proteins_data, mirna_data, mrna_data, phenotype_data, subtypes_data = MultiDataframesPipeline()(data=[proteins_data, mirna_data, mrna_data, phenotype_data, subtypes_data])
+proteins_data, mirna_data, mrna_data, phenotype_data, subtypes_data = MultiDataframesPipeline()(
+    data=[proteins_data, mirna_data, mrna_data, phenotype_data, subtypes_data])
 sim_proteins, sim_mirna, sim_mrna = SimilarityMatrices()(data=[proteins_data, mirna_data, mrna_data])
 
-
 downstream_pipeline = DownstreamPipeline()
-
 
 pred_clusters = downstream_pipeline(data=[sim_proteins, sim_mirna, sim_mrna]).labels_
 
