@@ -8,7 +8,9 @@ from src.models import Data
 from src.pipeline_steps import RetainMainTumors
 from src.pipelines import ProteinsPipeline, Pipeline, miRNAPipeline, PhenotypePipeline, SubTypesPipeline
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import os
+from scipy.stats import shapiro
 
 PROTEINS_PATH = '../data/mo_PRAD_RPPAArray-20160128.csv'
 MIRNA_PATH = '../data/mo_PRAD_miRNASeqGene-20160128.csv'
@@ -69,7 +71,8 @@ def plot_features_with_nans(dump_path: str, show: bool = False):
     fig.update_layout(title='Total Features vs Features with NaNs',
                       title_x=0.5,
                       xaxis_title='Data Type',
-                      yaxis_title='% of features with NaNs')
+                      yaxis_title='% of features with NaNs',
+                      yaxis_range=[0, 100])
 
     if show:
         fig.show()
@@ -77,7 +80,7 @@ def plot_features_with_nans(dump_path: str, show: bool = False):
     fig.write_image(dump_path)
 
 
-def plt_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, dump_path: str, show: bool = False):
+def plot_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, dump_path: str, show: bool = False):
     data = data.isna().sum() / len(data) * 100
     data = data.to_frame()
     data.columns = ['NaNs Percentage']
@@ -93,7 +96,8 @@ def plt_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, dump_path:
     fig.update_layout(title='NaNs Percentage per Feature',
                       title_x=0.5,
                       xaxis_title='Feature',
-                      yaxis_title='% of NaNs')
+                      yaxis_title='% of NaNs',
+                      yaxis_range=[0, 100])
 
     if show:
         fig.show()
@@ -101,5 +105,30 @@ def plt_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, dump_path:
     fig.write_image(dump_path)
 
 
-plot_features_with_nans(dump_path='../plots/plot.png')
-plt_nan_percetage_per_feature(data=proteins_data, data_type='Proteins', dump_path='../plots/proteins.png')
+def plot_features_covariance(data: pd.DataFrame, data_type: str, dump_path: str, show: bool = False):
+
+    cov = data.corr()
+
+    df = pd.DataFrame([{'Feature 1': cov.index[i],
+                        'Feature 2': cov.columns[j],
+                        'Covariance': cov.iloc[i, j]} for i in range(len(cov)) for j in range(len(cov))],
+                      columns=['Feature 1', 'Feature 2', 'Covariance'])
+
+    fig = px.density_heatmap(df, x='Feature 1', y='Feature 2', z='Covariance')
+
+    fig.update_layout(title=f'Features Covariance ({data_type})',
+                      title_x=0.5,
+                      xaxis_title='Feature',
+                      yaxis_title='Feature')
+
+    if show:
+        fig.show()
+
+    fig.write_image(dump_path)
+
+
+plot_features_with_nans(dump_path='../plots/nans_perc_plot.png')
+plot_nan_percetage_per_feature(data=proteins_data, data_type='Proteins', dump_path='../plots/proteins_nans_perc.png')
+plot_nan_percetage_per_feature(data=mirna_data, data_type='miRNA', dump_path='../plots/mirna_nans_perc.png')
+plot_nan_percetage_per_feature(data=mrna_data, data_type='mRNA', dump_path='../plots/mrna_nans_perc.png')
+plot_features_covariance(data=proteins_data, data_type='Proteins', dump_path='../plots/proteins_cov.png', show=True)
