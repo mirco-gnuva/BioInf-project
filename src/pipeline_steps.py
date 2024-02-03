@@ -354,6 +354,36 @@ class ZScoreScaler(PipelineStep):
         return data_copy
 
 
+class MinMaxScalerStep(PipelineStep):
+    """
+    Step to scale the data using the MinMaxScaler.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scaler = MinMaxScaler()
+
+    def _call(self, data: Data) -> Data:
+        """Scale the data using the MinMaxScaler.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to scale.
+
+        Returns
+        -------
+        pd.DataFrame
+            The scaled dataframe.
+        """
+
+        data_copy = data.copy(deep=True)
+        for col in tqdm(data_copy.columns, desc='Scaling data', leave=False):
+            data_copy[col] = self.scaler.fit_transform(data_copy[col].values.reshape(-1, 1))
+
+        return data_copy
+
+
 class SimilarityMatrices(PipelineStep):
     """
     Step to compute the similarity matrix.
