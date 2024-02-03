@@ -1,7 +1,6 @@
-
 from pipeline_steps import (PipelineStep, IntersectDataframes, RemoveFFPESamples, FilterByNanPercentage,
-                            FilterByVariance, RetainMainTumors, TruncateBarcode, ZScoreScaler, SimilarityMatrices,
-                            ComputeSNF, ComputeKMedoids, SortByIndex, ComputeMatricesAverage)
+                            FilterByVariance, RetainMainTumors, TruncateBarcode, SimilarityMatrices,
+                            ComputeSNF, ComputeKMedoids, SortByIndex, ComputeMatricesAverage, MinMaxScalerStep)
 from datetime import datetime
 from src.models import Data
 from typing import Iterable
@@ -35,8 +34,7 @@ class ExperimentPipeline(Pipeline):
     steps = [RetainMainTumors(),
              FilterByNanPercentage(),
              FilterByVariance(),
-             TruncateBarcode(),
-             ZScoreScaler()]
+             TruncateBarcode()]
 
     def __call__(self, data: Data | list[Data], *args, **kwargs):
         with logger.contextualize(data_type=self.data_type):
