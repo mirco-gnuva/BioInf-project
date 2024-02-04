@@ -10,6 +10,7 @@ from loguru import logger
 from snf import compute
 import pandas as pd
 from sklearn_extra.cluster import KMedoids
+from sklearn.cluster import SpectralClustering
 
 
 class PipelineStep:
@@ -513,7 +514,7 @@ class ComputeKMedoids(DownstreamStep):
     Step to compute the similarity matrix.
     """
 
-    def _call(self, data: pd.DataFrame, clusters_n: int = 3, *args, **kwargs) -> pd.DataFrame:
+    def _call(self, data: pd.DataFrame, clusters_n: int = 3, *args, **kwargs) -> pd.Series:
         """Compute the similarity matrix of the given dataframe.
 
         Parameters
@@ -534,7 +535,39 @@ class ComputeKMedoids(DownstreamStep):
         normalized_similarity = scaler.fit_transform(data)
         distances = scaler.fit_transform(1 - normalized_similarity)
 
-        clusters = KMedoids(n_clusters=clusters_n, random_state=0, metric='precomputed', method='pam').fit(distances)
+        clusters = KMedoids(n_clusters=clusters_n, random_state=0, metric='precomputed', method='pam').fit_predict(distances)
+        clusters = pd.Series(clusters, index=data.index)
+
+        logger.debug('Clustering computed.')
+
+        return clusters
+
+
+class ComputeSpectralClustering(DownstreamStep):
+    """
+    Step to compute the similarity matrix.
+    """
+
+    def _call(self, data: pd.DataFrame, clusters_n: int = 3, *args, **kwargs) -> pd.Series:
+        """Compute the similarity matrix of the given dataframe.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The dataframe to process.
+        clusters_n : int
+            The number of clusters to be detected.
+
+        Returns
+        -------
+        pd.DataFrame
+            The similarity matrix.
+        """
+
+        logger.debug('Computing Spectral Clustering...')
+
+        clusters = SpectralClustering(n_clusters=clusters_n, affinity='precomputed').fit_predict(data)
+        clusters = pd.Series(clusters, index=data.index)
 
         logger.debug('Clustering computed.')
 

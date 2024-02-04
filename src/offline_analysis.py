@@ -1,3 +1,6 @@
+import numpy as np
+from tqdm import tqdm
+
 from data_loaders import (ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader, SubtypesDataLoader,
                           DataLoader)
 import plotly.express as px
@@ -105,18 +108,37 @@ def plot_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, dump_path
     fig.write_image(dump_path)
 
 
-def plot_features_covariance(data: pd.DataFrame, data_type: str, dump_path: str, show: bool = False):
+def plot_features_pearson_correlation(data: pd.DataFrame, data_type: str, dump_path: str, show: bool = False):
+    # corr = data.corr()
+    corr = np.corrcoef(data, rowvar=False)
+    triu_indices = np.triu_indices(corr.shape[0], 1)
 
-    cov = data.corr()
+    feature_pairs = ((data.columns[i], data.columns[j]) for i, j in zip(*triu_indices))
 
-    df = pd.DataFrame([{'Feature 1': cov.index[i],
-                        'Feature 2': cov.columns[j],
-                        'Covariance': cov.iloc[i, j]} for i in range(len(cov)) for j in range(len(cov))],
-                      columns=['Feature 1', 'Feature 2', 'Covariance'])
+    correlations = corr[triu_indices]
+    result = np.array([(pair[0], pair[1], corr) for pair, corr in zip(feature_pairs, correlations)])
 
-    fig = px.density_heatmap(df, x='Feature 1', y='Feature 2', z='Covariance')
+    # raw_data = []
+    # for i in tqdm(range(len(corr)), leave=False):
+    #     for j in tqdm(range(len(corr)), leave=False):
+    #         raw_data.append({'Feature 1': corr.index[i],
+    #                          'Feature 2': corr.columns[j],
+    #                          'Correlation': corr.iloc[i, j]})
+    #
+    # df = pd.DataFrame(raw_data, columns=['Feature 1', 'Feature 2', 'Correlation'])
 
-    fig.update_layout(title=f'Features Covariance ({data_type})',
+    # df = pd.DataFrame(({'Feature 1': corr.index[i],
+    #                     'Feature 2': corr.columns[j],
+    #                     'Correlation': corr.iloc[i, j]} for i in range(len(corr)) for j in range(len(corr))),
+    #                   columns=['Feature 1', 'Feature 2', 'Correlation'])
+    df = corr.stack()
+    df.index.names = ['Feature 1', 'Feature 2']
+    df = df.reset_index(level=['Feature 2']).reset_index()
+    df.columns = ['Feature 1', 'Feature 2', 'Correlation']
+
+    fig = px.density_heatmap(df, x='Feature 1', y='Feature 2', z='Correlation')
+
+    fig.update_layout(title=f'Features Pearson correlation ({data_type})',
                       title_x=0.5,
                       xaxis_title='Feature',
                       yaxis_title='Feature')
@@ -127,8 +149,17 @@ def plot_features_covariance(data: pd.DataFrame, data_type: str, dump_path: str,
     fig.write_image(dump_path)
 
 
-plot_features_with_nans(dump_path='../plots/nans_perc_plot.png')
-plot_nan_percetage_per_feature(data=proteins_data, data_type='Proteins', dump_path='../plots/proteins_nans_perc.png')
-plot_nan_percetage_per_feature(data=mirna_data, data_type='miRNA', dump_path='../plots/mirna_nans_perc.png')
-plot_nan_percetage_per_feature(data=mrna_data, data_type='mRNA', dump_path='../plots/mrna_nans_perc.png')
-plot_features_covariance(data=proteins_data, data_type='Proteins', dump_path='../plots/proteins_cov.png', show=True)
+def run_all(plots_path: str = '../plots', show: bool = False):
+    plot_features_with_nans(dump_path=os.path.join(plots_path, 'nans_perc_plot.png'), show=show)
+    plot_nan_percetage_per_feature(data=proteins_data, data_type='Proteins',
+                                   dump_path=os.path.join(plots_path, 'proteins_nans_perc.png'), show=show)
+    plot_nan_percetage_per_feature(data=mirna_data, data_type='miRNA',
+                                   dump_path=os.path.join(plots_path, 'mirna_nans_perc.png'), show=show)
+    plot_nan_percetage_per_feature(data=mrna_data, data_type='mRNA',
+                                   dump_path=os.path.join(plots_path, 'mrna_nans_perc.png'), show=show)
+    # plot_features_pearson_correlation(data=proteins_data, data_type='Proteins',
+    #                                   dump_path=os.path.join(plots_path, 'proteins_corr.png'), show=show)
+    # plot_features_pearson_correlation(data=mirna_data, data_type='miRNA',
+    #                                   dump_path=os.path.join(plots_path, 'mirna_corr.png'), show=show)
+    plot_features_pearson_correlation(data=mrna_data, data_type='mRNA',
+                                      dump_path=os.path.join(plots_path, 'mrna_corr.png'), show=show)
