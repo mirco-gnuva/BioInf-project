@@ -95,7 +95,19 @@ L'idea alla base della non integrazione è quella di analizzare come ogni sorgen
 Uno dei metodi più semplici per integrare matrici diverse è quello di farne semplicemente la media. Fare la media elemento per elemento comporta diverse problematiche, tra cui il fatto che non vengono tenute in considerazione le relazioni tra le sorgenti e che potrebbe emergere patten dipendenti unicamente dal posizionamento delle feature nei dataset.
 Questa strategia di integrazione è quindi utile come baseline per confrontare le performance di metodi più complessi e sofisticati.
 
-#### SNF
+#### Similarity Network Fusion
+SNF si propone come strategia di integrazione in grado di risolvere tre problemi principali:
+- Rapporto segnale/rumore basso
+- Dati su scale diverse e bias durante il collezionamento
+- Interdipendenza tra le sorgenti
+
+L'algritmo si compone di due step principali:
+1. Calcolo della matrice di similarità per ogni sorgente
+2. Fusione delle matrici di similarità
+
+In particolare, le matrici di similarità calcolate per ogni sorgente, vengono usate come base per la costruzione di grafi pesati dove i nodi sono i campioni (nella presente sperimentazione, i pazienti) e gli archi rappresentano la similarità tra di essi. Ogni grafo viene poi *fuso* iterativamente. Ad ogni iterazione il grafo risultante viene reso il più simile possibile a tutti gli altri. Il processo continua fino a convergenza.
+SNF si dimostra efficace nell'elminare rumori specifici delle sorgenti (ovvero archi con pesi bassi), mantenimento delle relazioni più forti ed esaltazione di connessioni deboli ma presenti in più sorgenti.
+
 
 ### Clustering
 
