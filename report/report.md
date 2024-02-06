@@ -110,6 +110,13 @@ SNF si dimostra efficace nell'elminare rumori specifici delle sorgenti (ovvero a
 
 
 ### Clustering
+Per effettuare il clustering dei pazienti, si è scelto di utilizzare l'algorimto K-medoids.
+Il funzionamento di tale algoritmo è molto simile a quello di k-means, con la differenza che i cluster vengono formati partendo dai *medoidi*.
+Un medoide, è un punto del dataset che minimizza la somma delle distanze tra di esso e tutti gli altri punti del cluster.
+Risulta naturale associare K-means e quindi i centroidi con il concetto di media, mentre i medoidi con la mediana.
+Così come la media dipende dalla distribuzione dei dati e quindi è sensibile agli outliers, anche i cluster identificati da K-means lo saranno.
+I medoid in vece, come la mediana, rappresentano i valori centrali nell'ordinamento degli elementi del cluster.
 
+K-medoids tuttavia condivide con K-means la necessità di specificare il numero di cluster da identificare. Questo è un problema aperto e non esiste una soluzione univoca. Inoltre, la scelta del numero di cluster è molto importante e può influenzare fortemente i risultati del clustering. Nel caso specifico della presente sperimentazine la scelta è stata guidata dal numero di sottotipi precedentemente identificati tramite iCluster.
 
 ## RISULTATI
