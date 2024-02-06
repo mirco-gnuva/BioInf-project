@@ -20,12 +20,27 @@ L'accesso libero a tale quantità di dati, permette di ideare e confrontare dive
 
 ## METODI
 ### Dati
-I dataset utilizzati riguardano il tumore alla prostata e sono stati scaricati dal progetto TCGA. I dati riguardano:
-- Proteomica (Espressione proteica)
-- Trascrittomica (mRNA)
-- Epigenomica (miRNA)
-- Caratteristiche cliniche dei pazienti
+I dataset utilizzati riguardano il tumore alla prostata e sono stati scaricati dal progetto TCGA. Si suddividono in:
+- Proteomici (Espressione proteica)
+- Trascrittomici (mRNA)
+- Epigenomici (miRNA)
+- Riguardo il fenotipo
 - Sottotipi di tumore individuati tramite framework iCluster
+
+
+#### Confronto sorgenti
+Come è possibile notare dalla tabella sottostante, il dataset riguardo i dati trascrittomici presenta molte più feature rispetto alle altre due sorgenti; questo elemento potrebbe influenzare i risultati dell'integrazione. Se da un lato, la numerosità delle feature rende necessario mettere in atto strategie di riduzione della dimensionalità, dall'altro, è più probabile perdere informazioni rilevanti se il numero finale di feature è molto basso.
+
+|          | Pazienti | Features |
+|----------|----------|----------|
+| Proteine | 352      | 195      |
+| miRNA    | 547      | 1046     |
+| mRNA     | 550      | 20501    |
+
+
+#### Sottotipi di tumore
+La distribuzione dei sottotipi [PLOT] presenta uno sbilanciamente percentuale rilevante tra i sottotipi 3 e 1 il che rende consigliabile valutare l'oversampling della classe minoritara e/o l'undersampling del sottotipo 3.  
+
 
 
 #### iCluster
@@ -120,3 +135,51 @@ I medoid in vece, come la mediana, rappresentano i valori centrali nell'ordiname
 K-medoids tuttavia condivide con K-means la necessità di specificare il numero di cluster da identificare. Questo è un problema aperto e non esiste una soluzione univoca. Inoltre, la scelta del numero di cluster è molto importante e può influenzare fortemente i risultati del clustering. Nel caso specifico della presente sperimentazine la scelta è stata guidata dal numero di sottotipi precedentemente identificati tramite iCluster.
 
 ## RISULTATI
+### Metriche di valutazione
+Per valutare la qualità dei clustering ottenuti, si è scelto di utilizzare le seguenti metriche:
+- Rand Index
+- Adjusted Rand Index
+- Normalized Mutual Information 
+- Silhouette Score
+
+#### Rand Index
+Il Rand Index è una metrica che misura la similarità tra due clustering. Il valore ottenuto può variare tra 0 e 1, dove 0 indica che i due clustering non sono simili, mentre 1 indica che i due clustering sono identici.
+Viene definito come:
+$ RI = \frac{\alpha + \beta}{N}$
+
+Dove:
+- $\alpha$ è il numero di coppie di elementi che sono nello stesso cluster in entrambi i clustering
+- $\beta$ è il numero di coppie di elementi che sono in cluster diversi in entrambi i clustering
+- $N$ è il numero totale di coppie di elementi
+
+Essendo una metrica dalla definizione intuitiva, è stata scelta per aumentare l'interpretabilità dei risultati.
+
+
+#### Adjusted Rand Index
+L'Adjusted Rand Index è una versione corretta del Rand Index che tiene conto del fatto che il Rand Index tende ad essere alto anche per clustering casuali. Più nello specifico, viene calcolato il RI, che viene poi *corretto* con il suo valore attesto. In questo modo viene considerata l'eventualità che il clustering sia frutto del caso.
+La sua definizione è:
+$ ARI = \frac{RI - E[RI]}{max(RI) - E[RI]}$
+
+
+#### Normalized Mutual Information
+La Normalized Mutual Information è una metrica che misura la similarità tra due clustering. Il valore ottenuto può variare tra 0 e 1, dove 0 indica che i due clustering non sono simili, mentre 1 indica che i due clustering sono identici. Esprime quanto le informazioni di un clustering siano utili per prevedere l'altro. Quindi se l' NMI è 1, esiste una relazione perfetta tra i due clustering.
+Viene definita come:
+$ NMI = \frac{I(X;Y)}{\sqrt{H(X)H(Y)}}$
+
+
+#### Silhouette Score
+Differentemente dalle precedenti metriche, il Silhoutte Score non dipende da un clustering di riferimento. Misura la qualità del clustering in base alla distanza media tra i campioni di uno stesso cluster e la distanza media tra i campioni di cluster diversi. Il valore ottenuto può variare tra -1 e 1.
+Un valore alto significa che, mediamente, i punti sono più vicini al proprio cluster rispetto a quelli circostanti, un valore basso indica che i punti sono più vicini a cluster diversi rispetto a quello di appartenenza mentre 0 indica che i punti sono equidistanti dai cluster vicini e quindi è probabile che due o più cluster siano sovrapposti.
+
+Lo score per ogni punto viene calcolato come:
+$ S = \frac{b - a}{max(a, b)}$
+
+Dove:
+- $a$ è la distanza media tra un campione e tutti gli altri campioni nello stesso cluster
+- $b$ è la distanza media tra un campione e tutti i campioni di un cluster diverso da quello di appartenenza
+- $max(a, b)$ è il massimo tra le due distanze
+
+Il Silhouette Score è la media dei valori ottenuti per ogni campione.
+
+
+### R
