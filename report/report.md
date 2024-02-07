@@ -1,14 +1,14 @@
 ## INTRODUZIONE
 ### Dati multi-omici
 L'avvento dei dati multi omici, ha permesso di analizzare e studiare i pazienti oncologici non solo dal punto di vista clinico, ma anche molecolare.
-L'elevata dimensionalità dei dati, permette così di comprendere a fondo le dinamiche che contraddisitnguono le diverse tipologie di tumori, e di individuare nuovi marcatori molecolari che possano essere utilizzati per la diagnosi e la terapia; lo sfruttamento dei dati multi-omici si rivela quindi abilitante per la medicina di precisione. 
+L'elevata dimensionalità dei dati, permette così di comprendere a fondo le dinamiche che contraddisitnguono le diverse tipologie di tumori, e di individuare nuovi marcatori molecolari che possano essere utilizzati per la diagnosi e la terapia; lo sfruttamento dei dati multi-omici si rivela quindi abilitante per la medicina di precisione [2]. 
 L'eterogeneità dei dati oggi a disposizione, rende però necessario lo studio di specifiche tecniche di integrazione che permettano di sfruttare le informazioni infra e inter-omiche.
 
 ### Medicina di precisione
-La medicina di precisione è una nuova metodologia di trattamento del paziente che si basa sulla personalizzazione della terapia in base alle caratteristiche peculiari del paziente. Questo approccio è particolarmente efficace in oncologia, dove la variabilità dei tumori e delle risposte alle terapie è molto elevata. L'obiettivo è quello di identificare i sottotipi di tumore e di individuare le terapie più efficaci per ciascun paziente. L'analisi dei dati multi-omici è fondamentale per raggiungere questo obiettivo, in quanto permette di ottenere una visione più completa e dettagliata del paziente e del suo tumore.
+La medicina di precisione è una nuova metodologia di trattamento del paziente che si basa sulla personalizzazione della terapia in base alle caratteristiche peculiari dello stesso [3]. In campo oncologico, l'obiettivo è quello di identificare i sottotipi di tumore e di individuare le terapie più efficaci per ciascun paziente [4]. L'analisi dei dati multi-omici è fondamentale per raggiungere questo obiettivo, in quanto permette di ottenere una visione più completa e dettagliata del paziente e del suo tumore.
 
 #### Identificazione sottotipi di tumore
-Vista la notevole eterogeneità dei tumori, è necessario identificarne i sottotipi, in modo da poter creare terapie mirate. Sottotipi di uno stesso tumore possono implicare differenti prognosi e risposte alle terapie. Anche in questo caso, trovare il metodo più efficace per integrare le diverse tipologie dei dati gioca un ruolo fondamentale nel raggiungimento di risultati significativi. Ottenere una rappresentazione unificata dei vari aspetti, preservando le informazioni sia speicifiche di ogni 'vista' che quelle che emergono dal confronto con le altre è una sfida aperta e oggetto di numerosi studi.
+Vista la notevole eterogeneità dei tumori, è necessario identificarne i sottotipi, in modo da poter creare terapie mirate. Sottotipi di uno stesso tumore possono implicare differenti prognosi e risposte alle terapie. Anche in questo caso, trovare il metodo più efficace per integrare le diverse tipologie dei dati gioca un ruolo fondamentale nel raggiungimento di risultati significativi. Ottenere una rappresentazione unificata dei vari aspetti, preservando le informazioni sia speicifiche di ogni 'vista' che quelle che emergono dal confronto con le altre è una sfida aperta e oggetto di numerosi studi [10].
 
 Oltre alla problematica dell'integrazione dei dati, è anche necessario inidividuare la tecnica migliore di clustering dei pazienti per massimizzare l'identificazione dei sottotipi di tumore. Un aspetto da non sottovalutare nel clustering è la forte dipendenza dei risultati dagli iperparametri scelti. La scelta di questi ultimi è spesso basata su criteri empirici e non sempre supportata da evidenze scientifiche ciò intacca la riproducibilità dei risultati.
 
@@ -47,23 +47,22 @@ La distribuzione dei sottotipi [PLOT] presenta uno sbilanciamente percentuale ri
 
 
 #### iCluster
-iCluster è un framework che permette di dentificare sottotipi da tumore integrando dati multi-omici. L'obiettivo è quello di considerare contemporaneamente:
+iCluster [7] è un framework che permette di dentificare sottotipi da tumore integrando dati multi-omici. L'obiettivo è quello di considerare contemporaneamente:
 - Varianza delle singole feature
 - Covarianza intra-omica
 - Covarianza inter-omica
 
-In questo modo, l'idea è quella di sfruttare l'informazione data dalle singole fonti, senza ignorare le interazioni tra di esse.
+L'idea è quella di sfruttare l'informazione data dalle singole fonti, senza ignorare le interazioni tra di esse.
 Vista la necessità di gestire una mole di dati attualmente proibitiva, viene applicata la tecnica PCA in modo da ridurre la dimensionalità dei dati, senza perdere informazioni significative. Visto l'utilizzo di una tecnica di feature-extraction, le dimensioni post applicazione non sono quelle originali ma proiettano il dato in uno spazio latente.
 
 
 
 ### Preprocessing
-Ogni sorgente di dati, viene processata attraverso una specifica pipeline. Lo scopo delle pipeline è quello di uniformare i dati eliminando i risultati relativia a campioni non utili ai fini della sperimentazione.
+Ogni sorgente di dati, viene processata attraverso una specifica pipeline. Lo scopo delle pipeline è quello di uniformare i dati eliminando i risultati relativi a campioni non utili ai fini della sperimentazione rendendo i risultati riproducibili.
 
 #### Pipeline miRNA, mRNA, dati proteomici
 ##### Selezione tumore principale
-Vengono eliminati tutti i risultati campioni che non siano relativi al tumore principale.
-[PERCHÈ?]
+Per migliorare la comparabilità dei campioni, si è scelto di considerare solo i campioni relativi al tumore principale. Questo permette di eliminare campioni relativi a metastasi o a tumori secondari, che potrebbero presentare caratteristiche molecolari diverse rispetto al tumore principale.
 
 ##### Gestione valori mancanti
 L'unica sorgente che presenta dati mancanti è quella relativa all'espressione proteica (4.5%)[PLOT]. 
@@ -96,7 +95,7 @@ Ogni sorgente, compresa quella dei sottotipi, condividono una pipeline di prepar
 
 ### Matrici di similarità 
 Siccome ogni strategia di integrazione messa in atto nello step successivo richiede il calcolo di una matrice di similarità per ogni sorgente, si è scelto di rendere indipendente tale passaggio.
-Il calcolo della similarità avviene tramite la scaled exponential euclidean distance, che permette di calcolare la similarità tra due campioni in base alla distanza euclidea tra di essi. [PERCHÈ?]
+Il calcolo della similarità avviene tramite la scaled exponential euclidean distance, che permette di calcolare la similarità tra due campioni in base alla distanza euclidea tra di essi. È stata scelta questa metrica perchè molto comune e quindi facilita il confronto con altri metodi, eliminanodo una variabile dalla comparazione dei risultati.
 
 
 ### Integrazione
@@ -114,7 +113,7 @@ Uno dei metodi più semplici per integrare matrici diverse è quello di farne se
 Questa strategia di integrazione è quindi utile come baseline per confrontare le performance di metodi più complessi e sofisticati.
 
 #### Similarity Network Fusion
-SNF si propone come strategia di integrazione in grado di risolvere tre problemi principali:
+SNF [9] si propone come strategia di integrazione in grado di risolvere tre problemi principali:
 - Rapporto segnale/rumore basso
 - Dati su scale diverse e bias durante il collezionamento
 - Interdipendenza tra le sorgenti
@@ -128,8 +127,8 @@ SNF si dimostra efficace nell'elminare rumori specifici delle sorgenti (ovvero a
 
 
 ### Clustering
-Per effettuare il clustering dei pazienti, si è scelto di utilizzare l'algorimto K-medoids.
-Il funzionamento di tale algoritmo è molto simile a quello di k-means, con la differenza che i cluster vengono formati partendo dai *medoidi*.
+Per effettuare il clustering dei pazienti, si è scelto di utilizzare l'algorimto K-medoids [11].
+Il funzionamento di tale algoritmo è molto simile a quello di K-means [5], con la differenza che i cluster vengono formati partendo dai *medoidi*.
 Un medoide, è un punto del dataset che minimizza la somma delle distanze tra di esso e tutti gli altri punti del cluster.
 Risulta naturale associare K-means e quindi i centroidi con il concetto di media, mentre i medoidi con la mediana.
 Così come la media dipende dalla distribuzione dei dati e quindi è sensibile agli outliers, anche i cluster identificati da K-means lo saranno.
@@ -139,17 +138,17 @@ K-medoids tuttavia condivide con K-means la necessità di specificare il numero 
 
 
 #### Spectral Clustering
-È stato anche effettuato un test con l'algrotimo di Spectral Clustering, ma in questo caso solo sui dati integrati tramite SNF.
+È stato anche effettuato un test con l'algrotimo di Spectral Clustering [8], ma in questo caso solo sui dati integrati tramite SNF.
 Spectral Clustering è un algoritmo di clustering che sfrutta la struttura dei dati per identificare i cluster. L'idea alla base di questo algoritmo è quella di proiettare i dati in uno spazio latente, dove i cluster sono più facilmente identificabili. In questo nuovo spazio, i dati vengono poi clusterizzati tramite un algoritmo di clustering tradizionale. L'algoritmo di Spectral Clustering è particolarmente efficace nell'identificare cluster non necessariamente di convessi.
 
 
 ## RISULTATI
 ### Metriche di valutazione
 Per valutare la qualità dei clustering ottenuti, si è scelto di utilizzare le seguenti metriche:
-- Rand Index
-- Adjusted Rand Index
+- Rand Index [3]
+- Adjusted Rand Index [3]
 - Normalized Mutual Information 
-- Silhouette Score
+- Silhouette Score [6]
 
 #### Rand Index
 Il Rand Index è una metrica che misura la similarità tra due clustering. Il valore ottenuto può variare tra 0 e 1, dove 0 indica che i due clustering non sono simili, mentre 1 indica che i due clustering sono identici.
@@ -174,6 +173,8 @@ $ ARI = \frac{RI - E[RI]}{max(RI) - E[RI]}$
 La Normalized Mutual Information è una metrica che misura la similarità tra due clustering. Il valore ottenuto può variare tra 0 e 1, dove 0 indica che i due clustering non sono simili, mentre 1 indica che i due clustering sono identici. Esprime quanto le informazioni di un clustering siano utili per prevedere l'altro. Quindi se l' NMI è 1, esiste una relazione perfetta tra i due clustering.
 Viene definita come:
 $ NMI = \frac{I(X;Y)}{\sqrt{H(X)H(Y)}}$
+
+Il fatto che questa metrica non sia corretta rispetto al lavoro atteso, la rende più interpretabile ma meno affidabile [Amelio].
 
 
 #### Silhouette Score
@@ -228,3 +229,28 @@ In entrambe le modalità di integrazione, si è optato per integrare i dati a mo
 ## CONCLUSIONI
 I risultati ottenuti sono considerabili insoddisfacenti, in quanto nessuna delle strategie di integrazione ha portato a score significativamente migliori rispetto agli altri.
 La costanza nei Silhouette Score suggerisce un problema di fondo nella determinazione della similarità tra i campioni.M entre gli altri indici, considerando i sottotipi identificati da iCLuster, attestano l'inapplicabilità dei metodi messi in atto nel contesto selezionato.
+
+
+## BIBLIOGRAFIA
+- [1] Amelio, A. and Pizzuti, C. (2015) ‘Is normalized mutual information a fair measure for comparing community detection methods?’, Proceedings of the 2015 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining 2015. doi:10.1145/2808797.2809344. 
+
+- [2] Correa-Aguila, R., Alonso-Pupo, N. and Hernández-Rodríguez, E.W. (2022) ‘Multi-omics data integration approaches for precision oncology’, Molecular Omics, 18(6), pp. 469–479. doi:10.1039/d1mo00411e. 
+
+- [3] Ginsburg, G. (2001) ‘Personalized medicine: Revolutionizing drug discovery and patient care’, Trends in Biotechnology, 19(12), pp. 491–496. doi:10.1016/s0167-7799(01)01814-5. 
+Hubert, L. and Arabie, P. (1985) ‘Comparing partitions’, Journal of Classification, 2(1), pp. 193–218. doi:10.1007/bf01908075. 
+
+- [4] Jiang, F. et al. (2022) ‘Integrated analysis of multi-omics data to identify prognostic genes for pancreatic cancer’, DNA and Cell Biology, 41(3), pp. 305–318. doi:10.1089/dna.2021.0878. 
+
+- [5] MacQueen, J. (1967) Some methods for classification and analysis of multivariate observations. 
+
+- [6] Rousseeuw, P.J. (1987) ‘Silhouettes: A graphical aid to the interpretation and validation of cluster analysis’, Journal of Computational and Applied Mathematics, 20, pp. 53–65. doi:10.1016/0377-0427(87)90125-7. 
+
+- [7] Shen, R., Olshen, A.B. and Ladanyi, M. (2009) ‘Integrative clustering of multiple genomic data types using a joint latent variable model with application to breast and lung cancer subtype analysis’, Bioinformatics, 25(22), pp. 2906–2912. doi:10.1093/bioinformatics/btp543. 
+
+- [8] von Luxburg, U. (2007) ‘A tutorial on spectral clustering’, Statistics and Computing, 17(4), pp. 395–416. doi:10.1007/s11222-007-9033-z. 
+
+- [9] Wang, B. et al. (2014) ‘Similarity network fusion for aggregating data types on a genomic scale’, Nature Methods, 11(3), pp. 333–337. doi:10.1038/nmeth.2810. 
+
+- [10] Wörheide, M.A. et al. (2021) ‘Multi-omics integration in biomedical research – a metabolomics-centric review’, Analytica Chimica Acta, 1141, pp. 144–162. doi:10.1016/j.aca.2020.10.038. 
+- 
+- [11] Kaufman, L. and Rousseeuw, P.J. (1990) ‘Finding groups in Data’, Wiley Series in Probability and Statistics [Preprint]. doi:10.1002/9780470316801. 
