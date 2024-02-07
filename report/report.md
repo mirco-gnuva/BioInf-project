@@ -18,6 +18,9 @@ Il progetto TCGA (The Cancer Genome Atlas) è un progetto di ricerca che ha lo s
 L'accesso libero a tale quantità di dati, permette di ideare e confrontare diverse tecniche di analisi accelerando così la ricerca in campo oncologico.
 
 
+### Obiettivi
+L'obiettivo di questa sperimentazione è quello di confrontare diverse tecniche di integrazione di dati multi-omici e di clustering dei pazienti, al fine di identificare i sottotipi di tumore alla prostata. Per la valutazione dei cluster ottenuti, è stato scelto di utilizzare i sottotipi precedentemente individuati tramite il framework iCluster.
+
 ## METODI
 ### Dati
 I dataset utilizzati riguardano il tumore alla prostata e sono stati scaricati dal progetto TCGA. Si suddividono in:
@@ -134,6 +137,12 @@ I medoid in vece, come la mediana, rappresentano i valori centrali nell'ordiname
 
 K-medoids tuttavia condivide con K-means la necessità di specificare il numero di cluster da identificare. Questo è un problema aperto e non esiste una soluzione univoca. Inoltre, la scelta del numero di cluster è molto importante e può influenzare fortemente i risultati del clustering. Nel caso specifico della presente sperimentazine la scelta è stata guidata dal numero di sottotipi precedentemente identificati tramite iCluster.
 
+
+#### Spectral Clustering
+È stato anche effettuato un test con l'algrotimo di Spectral Clustering, ma in questo caso solo sui dati integrati tramite SNF.
+Spectral Clustering è un algoritmo di clustering che sfrutta la struttura dei dati per identificare i cluster. L'idea alla base di questo algoritmo è quella di proiettare i dati in uno spazio latente, dove i cluster sono più facilmente identificabili. In questo nuovo spazio, i dati vengono poi clusterizzati tramite un algoritmo di clustering tradizionale. L'algoritmo di Spectral Clustering è particolarmente efficace nell'identificare cluster non necessariamente di convessi.
+
+
 ## RISULTATI
 ### Metriche di valutazione
 Per valutare la qualità dei clustering ottenuti, si è scelto di utilizzare le seguenti metriche:
@@ -168,7 +177,7 @@ $ NMI = \frac{I(X;Y)}{\sqrt{H(X)H(Y)}}$
 
 
 #### Silhouette Score
-Differentemente dalle precedenti metriche, il Silhoutte Score non dipende da un clustering di riferimento. Misura la qualità del clustering in base alla distanza media tra i campioni di uno stesso cluster e la distanza media tra i campioni di cluster diversi. Il valore ottenuto può variare tra -1 e 1.
+Differentemente dalle precedenti metriche, il Silhoutte Score non dipende da un clustering di riferimento, il che lo rende utile per confrontare i risultati con qu. Misura la qualità del clustering in base alla distanza media tra i campioni di uno stesso cluster e la distanza media tra i campioni di cluster diversi. Il valore ottenuto può variare tra -1 e 1.
 Un valore alto significa che, mediamente, i punti sono più vicini al proprio cluster rispetto a quelli circostanti, un valore basso indica che i punti sono più vicini a cluster diversi rispetto a quello di appartenenza mentre 0 indica che i punti sono equidistanti dai cluster vicini e quindi è probabile che due o più cluster siano sovrapposti.
 
 Lo score per ogni punto viene calcolato come:
@@ -182,4 +191,40 @@ Dove:
 Il Silhouette Score è la media dei valori ottenuti per ogni campione.
 
 
-### R
+### Risultati
+#### Predizioni senza integrazione
+Sia il Rand Index che l'Adjusted Rand Index (normalizzato tra 0 e 1) sono nell'intorno di 0.5 [PLOT], il che, considerando il fatto che i cluster sono solo 3, è abbastanza basso. Limitando il numero di cluster a 3 e ipotizzando una classificazione del tutto casuale, si avrebbe il 33% circa di probabilità di associare l'etichetta corretta ad un qualsiasi campione, essendo il RI di circa 0.5, si è di poco meglio di un classificatore casuale.
+La Normalized Mutual Information conferma quanto deducibile dai due indici precedenti, con valori inferiori a 0.06. In ognuno dei tre indici, il dataset che ha portato a risultati leggerissimamente migliori è stato quello relativo al mRNA, suggerendo una migliore informatività di tale sorgente in merito al contesto.
+
+Per quanto riguarda il Silhouette Score, le differenze tra le sorgenti sono sostanzialmente inesistenti con valori nell'intorno di 0.5. Anche in questo caso viene confermata la scarsa qualità del clustering visto che i cluster risultano sovrapposti.
+
+#### Integrazione tramite media
+I risultati ottenuti con questo tipo di integrazione sono del tutto comparabili con quelli ottenuti considerando le sorgenti in maniera disgiunta, soprattuto se si considera il dataset riguardanti i dati su mRNA. Questo suggerisce che la media delle matrici di similarità non sia un metodo efficace per integrare i dati.
+
+#### Integrazione tramite SNF
+Valori più rilevanti vengono ottenuti con i dati integrati tramite SNF, con i quali si raggiunge una NMI di circa 0.1 (seppur molto bassa, il doppio dei metodi precedenti) e un Rand Index di circa 0.6. Nonostante questo però il Silhoutte Score è leggermente più basso, il che permette di ipotizzare che i cluster individuati siano estremamente vicini.
+
+
+#### Clustering con Spectral Clustering
+Utilizzare Spectral Clustering invece di K-medoids ha portato a risultati leggermente migliori, ma quasi indistinguibili, soprattutto per quanto riguarda il Silhouette Score. Tale metodo potrebbe risultare più efficace a fronte di una fase di tuning degli iperparametri.
+
+
+#### Considerazioni Silhouette Score
+Valori così comparabili di Silhouette score a prescindere dal metodo di integrazione potrebbe segnificare che un problema presente sia la modalità di determinazione della similarità tra i pazienti, che vengono infatti identificati tutti molto diversi tra di loro [PLOT], distribuendoli nel piano. Visto ciò quanto ottenuto, si è evitato di approfondire ulteriormente l'analisi di questo indice, analizzando ad esempio i singoli valori ottenuti per ogni campione rispetto alla clusterizzazione.
+
+
+### Possibili miglioramenti
+#### Selezione feature
+Un primo miglioramento che potrebbe essere apportato è una selezione più accurata delle feature; invece che un numero fisso di feature per dataset, si potrebbe optare per soglie variabili in base alla dimensionalità orginale della sorgente. Oppure invece di considerare la varianza come proxy dell'informatività di una certa feature, la riduzione di dimensionalità potrebbe essere fatta sulla base di altre grandezze che considerano le relazioni tra le feature, come l'indice di correlazione di Pearson, selezionando così solo le feature non espresse da altre evitando informazioni ridondanti e quindi eventuali bias.
+Al costo di perdere interpretabilità dei risultati, alcuni algoritmi valutabili potrebbero essere quelli di feature extraction come PCA o nNMF, in quuesto modo, invece di perdere feature potenzialmente rilevanti in favore di altre, i dati verrebbero proiettati in uno spazio latente a minore dimensionalità ma con una perdita minima di informazione.
+
+#### Algoritmo di clustering
+Ulteriori test consistono in variare l'algoritmo di clustering, utilizzandone ad esempio uno la cui convergenza non si basa su un numero prescelto di cluster ma sulla distanza tra i sample, come ad esempio DBSCAN.
+
+#### Integrazione
+In entrambe le modalità di integrazione, si è optato per integrare i dati a monte delle predizioni; non sarebbe da escludere invece l'integrazione a posteriori, ovvero invece di integrare i dati, cercare di integrare i clustering. Ciò esporrebbe al problema di dover scegliere quanta importanza dare alle predizioni di ogni sorgente, tuttavia permetterebbe lo sfruttamente di studi e conoscenze pregresse sul contesto di applicazione.
+
+
+## CONCLUSIONI
+I risultati ottenuti sono considerabili insoddisfacenti, in quanto nessuna delle strategie di integrazione ha portato a score significativamente migliori rispetto agli altri.
+La costanza nei Silhouette Score suggerisce un problema di fondo nella determinazione della similarità tra i campioni.M entre gli altri indici, considerando i sottotipi identificati da iCLuster, attestano l'inapplicabilità dei metodi messi in atto nel contesto selezionato.
