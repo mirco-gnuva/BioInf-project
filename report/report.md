@@ -32,7 +32,7 @@ I dataset utilizzati riguardano il tumore alla prostata e sono stati scaricati d
 
 
 #### Confronto sorgenti
-Come è possibile notare dalla tabella sottostante, il dataset riguardo i dati trascrittomici presenta molte più feature rispetto alle altre due sorgenti; questo elemento potrebbe influenzare i risultati dell'integrazione. Se da un lato, la numerosità delle feature rende necessario mettere in atto strategie di riduzione della dimensionalità, dall'altro, è più probabile perdere informazioni rilevanti se il numero finale di feature è molto basso.
+Come è possibile notare dalla tabella sottostante e dal grafico [1], il dataset riguardo i dati trascrittomici presenta molte più feature rispetto alle altre due sorgenti; questo elemento potrebbe influenzare i risultati dell'integrazione. Se da un lato, la numerosità delle feature rende necessario mettere in atto strategie di riduzione della dimensionalità, dall'altro, è più probabile perdere informazioni rilevanti se il numero finale di feature è molto basso.
 
 |          | Pazienti | Features |
 |----------|----------|----------|
@@ -40,10 +40,13 @@ Come è possibile notare dalla tabella sottostante, il dataset riguardo i dati t
 | miRNA    | 547      | 1046     |
 | mRNA     | 550      | 20501    |
 
+![Features distribution](./static/features-count-per-data-type.png)
+
 
 #### Sottotipi di tumore
-La distribuzione dei sottotipi [PLOT] presenta uno sbilanciamente percentuale rilevante tra i sottotipi 3 e 1 il che rende consigliabile valutare l'oversampling della classe minoritara e/o l'undersampling del sottotipo 3.  
+La distribuzione dei sottotipi [2] presenta uno sbilanciamente percentuale rilevante tra i sottotipi 3 e 1 il che rende consigliabile valutare l'oversampling della classe minoritara e/o l'undersampling del sottotipo 3.  
 
+![Subtypes distribution](./static/subtypes_distribution.png)
 
 
 #### iCluster
@@ -54,7 +57,6 @@ iCluster [7] è un framework che permette di dentificare sottotipi da tumore int
 
 L'idea è quella di sfruttare l'informazione data dalle singole fonti, senza ignorare le interazioni tra di esse.
 Vista la necessità di gestire una mole di dati attualmente proibitiva, viene applicata la tecnica PCA in modo da ridurre la dimensionalità dei dati, senza perdere informazioni significative. Visto l'utilizzo di una tecnica di feature-extraction, le dimensioni post applicazione non sono quelle originali ma proiettano il dato in uno spazio latente.
-
 
 
 ### Preprocessing
