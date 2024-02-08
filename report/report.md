@@ -60,9 +60,10 @@ Vista la necessità di gestire una mole di dati attualmente proibitiva, viene ap
 
 
 ### Preprocessing
-Ogni sorgente di dati, viene processata attraverso una specifica pipeline. Lo scopo delle pipeline è quello di uniformare i dati eliminando i risultati relativi a campioni non utili ai fini della sperimentazione rendendo i risultati riproducibili.
+Ogni sorgente di dati, viene processata attraverso una specifica pipeline. Lo scopo delle pipeline è quello di uniformare i dati eliminando i risultati relativi a campioni non utili ai fini della sperimentazione rendendo al contempo i risultati riproducibili.
 
 #### Pipeline miRNA, mRNA, dati proteomici
+![Pipeline](./static/experiment_pipeline.png)
 ##### Selezione tumore principale
 Per migliorare la comparabilità dei campioni, si è scelto di considerare solo i campioni relativi al tumore principale. Questo permette di eliminare campioni relativi a metastasi o a tumori secondari, che potrebbero presentare caratteristiche molecolari diverse rispetto al tumore principale.
 
@@ -84,16 +85,19 @@ I barcode della piattaforma TCGA, costituiti da 24 caratteri, contengono informa
 
 
 #### Pipeline dati fenotipo
-In questo caso, dato che i dati relativi al fenotipo dei pazienti non sono oggetto di integrazione, la pipeline [PLOT] risulta molto più semplice.
+In questo caso, dato che i dati relativi al fenotipo dei pazienti non sono oggetto di integrazione, la pipeline [IMAGE] risulta molto più semplice.
 I campioni presenti nei dataset analizzati sono stati conservati tramite due metodologie diverse: FFPE e confelamento. 
 Dato che i campioni congelati si conservano meglio, si è scelto di eliminare i campioni FFPE. Questo permette in un secondo momento, di eliminare tali campioni anche dagli altri dataset semplicemente intersecando i barcode.
 
+![Pipeline](./static/phenotype_pipeline.png)
+
 
 #### Pipeline comune
-Ogni sorgente, compresa quella dei sottotipi, condividono una pipeline di preparazione all'integrazione. Tale pipeline modifica la struttura dei dataset come segne:
+Ogni sorgente, compresa quella dei sottotipi, condividono una pipeline di preparazione all'integrazione [IMAGE]. Tale pipeline modifica la struttura dei dataset come segne:
 1. Interseca i barcode dei campioni in modo tale che le sogenti condividano gli stessi campioni
 2. Ordina i campioni in base al barcode in modo tale che l'integrazione si possa basare sulla posizione, semplificando la pipeline d'integrazione
 
+![Pipeline](./static/multidataframes_pipeline.png)
 
 ### Matrici di similarità 
 Siccome ogni strategia di integrazione messa in atto nello step successivo richiede il calcolo di una matrice di similarità per ogni sorgente, si è scelto di rendere indipendente tale passaggio.
