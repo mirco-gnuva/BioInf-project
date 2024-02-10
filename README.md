@@ -26,6 +26,82 @@ pip install -r requirements.txt
 The R's requirements are self-contained in the `download_data.R` file and are installed automatically when the script is run.
 
 
+## R session info
+```
+R version 4.3.2 (2023-10-31)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS Sonoma 14.3.1
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+
+locale:
+[1] C/UTF-8/C/C/C/C
+
+time zone: Europe/Rome
+tzcode source: internal
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices utils     datasets  methods
+[8] base
+
+other attached packages:
+ [1] TCGAbiolinks_2.30.0         curatedTCGAData_1.24.1
+ [3] MultiAssayExperiment_1.28.0 SummarizedExperiment_1.32.0
+ [5] Biobase_2.62.0              GenomicRanges_1.54.1
+ [7] GenomeInfoDb_1.38.5         IRanges_2.36.0
+ [9] S4Vectors_0.40.2            BiocGenerics_0.48.1
+[11] MatrixGenerics_1.14.0       matrixStats_1.2.0
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.2.0              dplyr_1.1.4
+ [3] blob_1.2.4                    filelock_1.0.3
+ [5] Biostrings_2.70.2             bitops_1.0-7
+ [7] fastmap_1.1.1                 RCurl_1.98-1.14
+ [9] BiocFileCache_2.10.1          promises_1.2.1
+[11] XML_3.99-0.16.1               digest_0.6.34
+[13] mime_0.12                     lifecycle_1.0.4
+[15] ellipsis_0.3.2                KEGGREST_1.42.0
+[17] interactiveDisplayBase_1.40.0 RSQLite_2.3.5
+[19] magrittr_2.0.3                compiler_4.3.2
+[21] progress_1.2.3                rlang_1.1.3
+[23] tools_4.3.2                   utf8_1.2.4
+[25] yaml_2.3.8                    data.table_1.15.0
+[27] knitr_1.45                    prettyunits_1.2.0
+[29] S4Arrays_1.2.0                bit_4.0.5
+[31] curl_5.2.0                    DelayedArray_0.28.0
+[33] plyr_1.8.9                    xml2_1.3.6
+[35] abind_1.4-5                   withr_3.0.0
+[37] purrr_1.0.2                   grid_4.3.2
+[39] fansi_1.0.6                   ExperimentHub_2.10.0
+[41] xtable_1.8-4                  colorspace_2.1-0
+[43] ggplot2_3.4.4                 scales_1.3.0
+[45] biomaRt_2.58.2                cli_3.6.2
+[47] crayon_1.5.2                  generics_0.1.3
+[49] httr_1.4.7                    tzdb_0.4.0
+[51] DBI_1.2.1                     cachem_1.0.8
+[53] stringr_1.5.1                 zlibbioc_1.48.0
+[55] rvest_1.0.3                   AnnotationDbi_1.64.1
+[57] TCGAbiolinksGUI.data_1.22.0   BiocManager_1.30.22
+[59] XVector_0.42.0                vctrs_0.6.5
+[61] Matrix_1.6-5                  jsonlite_1.8.8
+[63] hms_1.1.3                     bit64_4.0.5
+[65] tidyr_1.3.1                   glue_1.7.0
+[67] stringi_1.8.3                 gtable_0.3.4
+[69] BiocVersion_3.18.1            later_1.3.2
+[71] munsell_0.5.0                 tibble_3.2.1
+[73] pillar_1.9.0                  rappdirs_0.3.3
+[75] htmltools_0.5.7               GenomeInfoDbData_1.2.11
+[77] R6_2.5.1                      dbplyr_2.4.0
+[79] shiny_1.8.0                   lattice_0.22-5
+[81] readr_2.1.5                   AnnotationHub_3.10.0
+[83] png_0.1-8                     memoise_2.0.1
+[85] httpuv_1.6.14                 Rcpp_1.0.12
+[87] SparseArray_1.2.3             xfun_0.41
+[89] downloader_0.4                pkgconfig_2.0.3 
+```
+
 ## How to run
 To run the project, follow the steps below:
 1. Download the data from TCGA by running the `download_data.R` script using Rscript or RStudio.
