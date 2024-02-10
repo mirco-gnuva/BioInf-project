@@ -10,7 +10,7 @@ La medicina di precisione è una nuova metodologia di trattamento del paziente c
 #### Identificazione sottotipi di tumore
 Vista la notevole eterogeneità dei tumori, è necessario identificarne i sottotipi, in modo da poter creare terapie mirate. Sottotipi di uno stesso tumore possono implicare differenti prognosi e risposte alle terapie. Anche in questo caso, trovare il metodo più efficace per integrare le diverse tipologie dei dati gioca un ruolo fondamentale nel raggiungimento di risultati significativi. Ottenere una rappresentazione unificata dei vari aspetti, preservando le informazioni sia speicifiche di ogni 'vista' che quelle che emergono dal confronto con le altre è una sfida aperta e oggetto di numerosi studi [10].
 
-Oltre alla problematica dell'integrazione dei dati, è anche necessario inidividuare la tecnica migliore di clustering dei pazienti per massimizzare l'identificazione dei sottotipi di tumore. Un aspetto da non sottovalutare nel clustering è la forte dipendenza dei risultati dagli iperparametri scelti. La scelta di questi ultimi è spesso basata su criteri empirici e non sempre supportata da evidenze scientifiche ciò intacca la riproducibilità dei risultati.
+Oltre alla problematica dell'integrazione dei dati, è anche necessario inidividuare la tecnica migliore di clustering dei pazienti per massimizzare l'identificazione dei sottotipi di tumore. Un aspetto da non sottovalutare nel clustering è la forte dipendenza dei risultati dagli iperparametri scelti. La scelta di questi ultimi è spesso basata su criteri empirici e non sempre supportata da evidenze scientifiche, intaccando la riproducibilità dei risultati.
 
 
 ### Progetto TCGA
@@ -32,25 +32,28 @@ I dataset utilizzati riguardano il tumore alla prostata e sono stati scaricati d
 
 
 #### Confronto sorgenti
-Come è possibile notare dalla tabella sottostante e dal grafico [1], il dataset riguardo i dati trascrittomici presenta molte più feature rispetto alle altre due sorgenti; questo elemento potrebbe influenzare i risultati dell'integrazione. Se da un lato, la numerosità delle feature rende necessario mettere in atto strategie di riduzione della dimensionalità, dall'altro, è più probabile perdere informazioni rilevanti se il numero finale di feature è molto basso.
+Come è possibile notare dalla tabella sottostante[Tab. 1] e dal grafico [Fig. 1] , il dataset riguardo i dati trascrittomici presenta molte più feature rispetto alle altre due sorgenti; questo elemento potrebbe influenzare i risultati dell'integrazione. Se da un lato, la numerosità delle feature rende necessario mettere in atto strategie di riduzione della dimensionalità, dall'altro, è più probabile perdere informazioni rilevanti se il numero finale di feature è molto basso.
 
 |          | Pazienti | Features |
 |----------|----------|----------|
 | Proteine | 352      | 195      |
 | miRNA    | 547      | 1046     |
-| mRNA     | 550      | 20501    |
+| mRNA     | 550      | 20501    |  
+
+*Tab. 1: distribuzione features nelle sorgenti omiche*
 
 ![Features distribution](./static/features-count-per-data-type.png)
+*Fig. 1: distribuzione features nelle sorgenti omiche*
 
 
 #### Sottotipi di tumore
-La distribuzione dei sottotipi [2] presenta uno sbilanciamente percentuale rilevante tra i sottotipi 3 e 1 il che rende consigliabile valutare l'oversampling della classe minoritara e/o l'undersampling del sottotipo 3.  
+La distribuzione dei sottotipi [Fig. 2] presenta uno sbilanciamente percentuale rilevante tra i sottotipi 3 e 1 il che rende consigliabile valutare l'oversampling della classe minoritara e/o l'undersampling del sottotipo 3.  
 
 ![Subtypes distribution](./static/subtypes_distribution.png)
-
+*Fig. 2: distribuzione sottotipi di tumore*
 
 #### iCluster
-iCluster [7] è un framework che permette di dentificare sottotipi da tumore integrando dati multi-omici. L'obiettivo è quello di considerare contemporaneamente:
+iCluster [7] è un framework che permette di dentificare sottotipi di tumore integrando dati multi-omici. L'obiettivo è quello di considerare contemporaneamente:
 - Varianza delle singole feature
 - Covarianza intra-omica
 - Covarianza inter-omica
@@ -64,18 +67,28 @@ Ogni sorgente di dati, viene processata attraverso una specifica pipeline. Lo sc
 
 #### Pipeline miRNA, mRNA, dati proteomici
 ![Pipeline](./static/experiment_pipeline.png)
-##### Selezione tumore principale
-Per migliorare la comparabilità dei campioni, si è scelto di considerare solo i campioni relativi al tumore principale. Questo permette di eliminare campioni relativi a metastasi o a tumori secondari, che potrebbero presentare caratteristiche molecolari diverse rispetto al tumore principale.
+
 
 ##### Gestione valori mancanti
-L'unica sorgente che presenta dati mancanti è quella relativa all'espressione proteica (4.5%)[PLOT]. 
-Ognuna di tali feature, presenta almeno il 40% di valori mancanti [PLOT]; perciò assumendo che la loro rimozione non comporti una perdita significativa di informazione, vengono eliminate dal dataset. Questa è un'assunzione molto forte che andrebbe analizzata a fondo considerando indici di correlazione come il coefficiente di Pearson.
+L'unica sorgente che presenta dati mancanti è quella relativa all'espressione proteica (4.5%)[Fig. 3]. 
+Ognuna di tali feature, presenta almeno il 40% di valori mancanti [Fig. 4]; perciò assumendo che la loro rimozione non comporti una perdita significativa di informazione, vengono eliminate dal dataset. Questa è un'assunzione molto forte che andrebbe analizzata a fondo considerando indici di correlazione come il coefficiente di Pearson.
 
+![Missing values](./static/total-features-vs-features-with-nans.png)
+
+*Fig. 3: percentuale di valori mancanti per feature nel dataset proteomico*
+
+
+![Missing values Proteomic](./static/nans-percentage-per-feature-proteins.png)
+
+*Fig. 4: percentuale di valori mancanti per feature nel dataset proteomico*
+
+##### Selezione tumore principale
+Per migliorare la comparabilità dei campioni, si è scelto di considerare solo i campioni relativi al tumore principale. Questo permette di eliminare campioni relativi a metastasi o a tumori secondari, che potrebbero presentare caratteristiche molecolari diverse rispetto al tumore principale.
 
 ##### Riduzione di dimensionalità
 Come accade in iCluster, per facilitare la gestione di dati ad alta dimensionalità come quelli scelti; si è reso necessario limitare il numero di feature.
 Per garantire una maggiore interpretabilità dei risultati da parte di persone esperte del dominio, si è preferito non proiettare i campioni in uno spazio latente, ma attuare una selezione delle feature più significative.
-Come nello step precedente, si è fatta un'assunzione altrettanto forte: Le feature con una maggiore variabilità dei valori sono quelle più significative.
+Come nello step precedente, si è fatta un'assunzione altrettanto forte: le feature con una maggiore variabilità dei valori sono quelle più significative.
 Questa scelta viene supportata a livello intuitivo dal fatto che se, al variare del sottotipo, i valori in una certa dimensione rimangono costanti, allora essi non sono rilevanti.
 Per ogni feature di ogni sorgente viene quindi calcolata la varianza e vengono selezionate solo le prime 100 feature con la maggiore varianza.
 
@@ -85,19 +98,23 @@ I barcode della piattaforma TCGA, costituiti da 24 caratteri, contengono informa
 
 
 #### Pipeline dati fenotipo
-In questo caso, dato che i dati relativi al fenotipo dei pazienti non sono oggetto di integrazione, la pipeline [IMAGE] risulta molto più semplice.
-I campioni presenti nei dataset analizzati sono stati conservati tramite due metodologie diverse: FFPE e confelamento. 
+In questo caso, dato che i dati relativi al fenotipo dei pazienti non sono oggetto di integrazione, la pipeline [Fig. 5] risulta molto più semplice.
+I campioni presenti nei dataset analizzati sono stati conservati tramite due metodologie diverse: FFPE e congelamento. 
 Dato che i campioni congelati si conservano meglio, si è scelto di eliminare i campioni FFPE. Questo permette in un secondo momento, di eliminare tali campioni anche dagli altri dataset semplicemente intersecando i barcode.
 
 ![Pipeline](./static/phenotype_pipeline.png)
+*Fig. 5: pipeline dati fenotipo*
 
 
 #### Pipeline comune
-Ogni sorgente, compresa quella dei sottotipi, condividono una pipeline di preparazione all'integrazione [IMAGE]. Tale pipeline modifica la struttura dei dataset come segne:
+Ogni sorgente, compresa quella dei sottotipi, condivide una pipeline di preparazione all'integrazione [Fig. 6]. Tale pipeline modifica la struttura dei dataset come segne:
 1. Interseca i barcode dei campioni in modo tale che le sogenti condividano gli stessi campioni
 2. Ordina i campioni in base al barcode in modo tale che l'integrazione si possa basare sulla posizione, semplificando la pipeline d'integrazione
 
+A seguito di tale pipeline, vengono conservati 247 campioni.
+
 ![Pipeline](./static/multidataframes_pipeline.png)
+*Fig. 6: pipeline comune di preparazione all'integrazione*
 
 ### Matrici di similarità 
 Siccome ogni strategia di integrazione messa in atto nello step successivo richiede il calcolo di una matrice di similarità per ogni sorgente, si è scelto di rendere indipendente tale passaggio.
@@ -107,7 +124,7 @@ Il calcolo della similarità avviene tramite la scaled exponential euclidean dis
 ### Integrazione
 Si è deciso di confrontare le seguenti strategie di integrazione:
 - Non integrazione
-- Media delle matrici si similarità
+- Media delle matrici di similarità
 - SNF (Similarity Network Fusion)
 
 
@@ -115,7 +132,7 @@ Si è deciso di confrontare le seguenti strategie di integrazione:
 L'idea alla base della non integrazione è quella di analizzare come ogni sorgente permetta di identificare i sottotipi di tumore rispetto ai risultati ottenuti integrando i dati in modi diversi. Dati i successi nel campo della classificazione dei tipi e sottotipi dei sistemi multi-omici, è lecito considerare le performance delle singole sorgenti come lower bound per le analisi. 
 
 #### Media matrici
-Uno dei metodi più semplici per integrare matrici diverse è quello di farne semplicemente la media. Fare la media elemento per elemento comporta diverse problematiche, tra cui il fatto che non vengono tenute in considerazione le relazioni tra le sorgenti e che potrebbe emergere patten dipendenti unicamente dal posizionamento delle feature nei dataset.
+Uno dei metodi più semplici per integrare matrici diverse è quello di farne semplicemente la media. Fare la media elemento per elemento comporta diverse problematiche, tra cui il fatto che non vengono tenute in considerazione le relazioni tra le sorgenti.  
 Questa strategia di integrazione è quindi utile come baseline per confrontare le performance di metodi più complessi e sofisticati.
 
 #### Similarity Network Fusion
@@ -135,22 +152,22 @@ SNF si dimostra efficace nell'elminare rumori specifici delle sorgenti (ovvero a
 ### Clustering
 Per effettuare il clustering dei pazienti, si è scelto di utilizzare l'algorimto K-medoids [11].
 Il funzionamento di tale algoritmo è molto simile a quello di K-means [5], con la differenza che i cluster vengono formati partendo dai *medoidi*.
-Un medoide, è un punto del dataset che minimizza la somma delle distanze tra di esso e tutti gli altri punti del cluster.
+Un medoide, è un punto del dataset che minimizza la somma delle distanze tra esso e tutti gli altri punti del cluster.
 Risulta naturale associare K-means e quindi i centroidi con il concetto di media, mentre i medoidi con la mediana.
 Così come la media dipende dalla distribuzione dei dati e quindi è sensibile agli outliers, anche i cluster identificati da K-means lo saranno.
-I medoid in vece, come la mediana, rappresentano i valori centrali nell'ordinamento degli elementi del cluster.
+I medoid invece, come la mediana, rappresentano i valori centrali e sono quindi indipendenti dagli outliers.
 
 K-medoids tuttavia condivide con K-means la necessità di specificare il numero di cluster da identificare. Questo è un problema aperto e non esiste una soluzione univoca. Inoltre, la scelta del numero di cluster è molto importante e può influenzare fortemente i risultati del clustering. Nel caso specifico della presente sperimentazine la scelta è stata guidata dal numero di sottotipi precedentemente identificati tramite iCluster.
 
 
 #### Spectral Clustering
-È stato anche effettuato un test con l'algrotimo di Spectral Clustering [8], ma in questo caso solo sui dati integrati tramite SNF.
-Spectral Clustering è un algoritmo di clustering che sfrutta la struttura dei dati per identificare i cluster. L'idea alla base di questo algoritmo è quella di proiettare i dati in uno spazio latente, dove i cluster sono più facilmente identificabili. In questo nuovo spazio, i dati vengono poi clusterizzati tramite un algoritmo di clustering tradizionale. L'algoritmo di Spectral Clustering è particolarmente efficace nell'identificare cluster non necessariamente di convessi.
+È stato anche effettuato un test con l'algoritmo di Spectral Clustering [8], ma in questo caso solo sui dati integrati tramite SNF.
+Spectral Clustering è un algoritmo di clustering che sfrutta la struttura dei dati per identificare i cluster. L'idea alla base di questo algoritmo è quella di proiettare i dati in uno spazio latente, dove i cluster sono più facilmente identificabili. In questo nuovo spazio, i dati vengono poi clusterizzati tramite un algoritmo di clustering tradizionale. L'algoritmo di Spectral Clustering è particolarmente efficace nell'identificare cluster non necessariamente convessi.
 
 
 ## RISULTATI
 ### Metriche di valutazione
-Per valutare la qualità dei clustering ottenuti, si è scelto di utilizzare le seguenti metriche:
+Per valutare la qualità dei cluster ottenuti, si è scelto di utilizzare le seguenti metriche:
 - Rand Index [3]
 - Adjusted Rand Index [3]
 - Normalized Mutual Information 
@@ -159,40 +176,40 @@ Per valutare la qualità dei clustering ottenuti, si è scelto di utilizzare le 
 #### Rand Index
 Il Rand Index è una metrica che misura la similarità tra due clustering. Il valore ottenuto può variare tra 0 e 1, dove 0 indica che i due clustering non sono simili, mentre 1 indica che i due clustering sono identici.
 Viene definito come:
-$ RI = \frac{\alpha + \beta}{N}$
+$$ RI = \frac{\alpha + \beta}{N} $$
 
 Dove:
 - $\alpha$ è il numero di coppie di elementi che sono nello stesso cluster in entrambi i clustering
 - $\beta$ è il numero di coppie di elementi che sono in cluster diversi in entrambi i clustering
 - $N$ è il numero totale di coppie di elementi
 
-Essendo una metrica dalla definizione intuitiva, è stata scelta per aumentare l'interpretabilità dei risultati.
+Essendo una metrica dalla definizione intuitiva, è stata scelta per migliorare l'interpretabilità dei risultati.
 
 
 #### Adjusted Rand Index
-L'Adjusted Rand Index è una versione corretta del Rand Index che tiene conto del fatto che il Rand Index tende ad essere alto anche per clustering casuali. Più nello specifico, viene calcolato il RI, che viene poi *corretto* con il suo valore attesto. In questo modo viene considerata l'eventualità che il clustering sia frutto del caso.
-La sua definizione è:
-$ ARI = \frac{RI - E[RI]}{max(RI) - E[RI]}$
+L'Adjusted Rand Index è una versione corretta del Rand Index che tiene conto del fatto che il Rand Index tende ad essere alto anche per clustering casuali. Più nello specifico, viene calcolato il RI, che viene poi *corretto* con il suo valore attesto. In questo modo viene considerata l'eventualità che il clustering sia frutto del caso.  
+La sua definizione è:  
+$$ ARI = \frac{RI - E(RI)}{max(RI) - E(RI)} $$
 
 
 #### Normalized Mutual Information
-La Normalized Mutual Information è una metrica che misura la similarità tra due clustering. Il valore ottenuto può variare tra 0 e 1, dove 0 indica che i due clustering non sono simili, mentre 1 indica che i due clustering sono identici. Esprime quanto le informazioni di un clustering siano utili per prevedere l'altro. Quindi se l' NMI è 1, esiste una relazione perfetta tra i due clustering.
-Viene definita come:
-$ NMI = \frac{I(X;Y)}{\sqrt{H(X)H(Y)}}$
+La Normalized Mutual Information è una metrica che misura la similarità tra due clustering. Il valore ottenuto può variare tra 0 e 1, dove 0 indica che i due clustering non sono simili, mentre 1 indica che i due clustering sono identici. Esprime quanto le informazioni di un clustering siano utili per prevedere l'altro. Quindi se l' NMI è 1, esiste una relazione deterministica tra i due clustering.  
+Viene definita come:  
+$$ NMI = \frac{I(X;Y)}{\sqrt{H(X)H(Y)}} $$
 
-Il fatto che questa metrica non sia corretta rispetto al lavoro atteso, la rende più interpretabile ma meno affidabile [Amelio].
+Il fatto che questa metrica non sia corretta rispetto al lavoro atteso, la rende più interpretabile ma meno affidabile [1].
 
 
 #### Silhouette Score
-Differentemente dalle precedenti metriche, il Silhoutte Score non dipende da un clustering di riferimento, il che lo rende utile per confrontare i risultati con qu. Misura la qualità del clustering in base alla distanza media tra i campioni di uno stesso cluster e la distanza media tra i campioni di cluster diversi. Il valore ottenuto può variare tra -1 e 1.
-Un valore alto significa che, mediamente, i punti sono più vicini al proprio cluster rispetto a quelli circostanti, un valore basso indica che i punti sono più vicini a cluster diversi rispetto a quello di appartenenza mentre 0 indica che i punti sono equidistanti dai cluster vicini e quindi è probabile che due o più cluster siano sovrapposti.
+Differentemente dalle precedenti metriche, il Silhoutte Score non dipende da un clustering di riferimento. Misura la qualità del clustering in base alla distanza media tra i campioni di uno stesso cluster e la distanza media tra i campioni di cluster diversi. Il valore ottenuto può variare tra -1 e 1.
+Un valore alto significa che, mediamente, i punti sono più vicini al proprio cluster rispetto a quelli circostanti, un valore basso indica che i punti sono più vicini a cluster diversi rispetto a quello di appartenenza mentre 0 indica che i punti sono equidistanti dai cluster vicini e quello di appartenenza e quindi è probabile che due o più cluster siano sovrapposti.
 
-Lo score per ogni punto viene calcolato come:
-$ S = \frac{b - a}{max(a, b)}$
+Lo score per ogni punto viene calcolato come:  
+$$ S = \frac{b - a}{max(a, b)} $$
 
 Dove:
 - $a$ è la distanza media tra un campione e tutti gli altri campioni nello stesso cluster
-- $b$ è la distanza media tra un campione e tutti i campioni di un cluster diverso da quello di appartenenza
+- $b$ è la distanza media tra un campione e tutti i campioni dei cluster vicini
 - $max(a, b)$ è il massimo tra le due distanze
 
 Il Silhouette Score è la media dei valori ottenuti per ogni campione.
@@ -200,41 +217,52 @@ Il Silhouette Score è la media dei valori ottenuti per ogni campione.
 
 ### Risultati
 #### Predizioni senza integrazione
-Sia il Rand Index che l'Adjusted Rand Index (normalizzato tra 0 e 1) sono nell'intorno di 0.5 [PLOT], il che, considerando il fatto che i cluster sono solo 3, è abbastanza basso. Limitando il numero di cluster a 3 e ipotizzando una classificazione del tutto casuale, si avrebbe il 33% circa di probabilità di associare l'etichetta corretta ad un qualsiasi campione, essendo il RI di circa 0.5, si è di poco meglio di un classificatore casuale.
+Sia il Rand Index che l'Adjusted Rand Index (normalizzato tra 0 e 1) sono nell'intorno di 0.5 [Fig. 7], il che, considerando il fatto che i cluster sono solo 3, è abbastanza basso. Limitando il numero di cluster a 3 e ipotizzando una classificazione del tutto casuale, si avrebbe il 33% circa di probabilità di associare l'etichetta corretta ad un qualsiasi campione, essendo il RI di circa 0.5, si è di poco meglio di un classificatore casuale.
 La Normalized Mutual Information conferma quanto deducibile dai due indici precedenti, con valori inferiori a 0.06. In ognuno dei tre indici, il dataset che ha portato a risultati leggerissimamente migliori è stato quello relativo al mRNA, suggerendo una migliore informatività di tale sorgente in merito al contesto.
 
-Per quanto riguarda il Silhouette Score, le differenze tra le sorgenti sono sostanzialmente inesistenti con valori nell'intorno di 0.5. Anche in questo caso viene confermata la scarsa qualità del clustering visto che i cluster risultano sovrapposti.
+Per quanto riguarda il Silhouette Score normalizzato, le differenze tra le sorgenti sono sostanzialmente inesistenti con valori nell'intorno di 0.5 [Fig. 7]. Anche in questo caso viene confermata la scarsa qualità del clustering visto che i cluster risultano sovrapposti.
 
 #### Integrazione tramite media
-I risultati ottenuti con questo tipo di integrazione sono del tutto comparabili con quelli ottenuti considerando le sorgenti in maniera disgiunta, soprattuto se si considera il dataset riguardanti i dati su mRNA. Questo suggerisce che la media delle matrici di similarità non sia un metodo efficace per integrare i dati.
+I risultati ottenuti con questo tipo di integrazione [Fig. 7] sono del tutto comparabili con quelli ottenuti considerando le sorgenti in maniera disgiunta, soprattuto se si considera il dataset riguardante i dati su mRNA. Questo suggerisce che la media delle matrici di similarità non sia un metodo efficace per integrare i dati.
 
 #### Integrazione tramite SNF
-Valori più rilevanti vengono ottenuti con i dati integrati tramite SNF, con i quali si raggiunge una NMI di circa 0.1 (seppur molto bassa, il doppio dei metodi precedenti) e un Rand Index di circa 0.6. Nonostante questo però il Silhoutte Score è leggermente più basso, il che permette di ipotizzare che i cluster individuati siano estremamente vicini.
+Valori più rilevanti vengono ottenuti con i dati integrati tramite SNF, con i quali si raggiunge una NMI di circa 0.1 (seppur molto bassa, il doppio dei metodi precedenti) e un Rand Index di circa 0.6 [Fig. 7]. Nonostante questo però il Silhoutte Score è leggermente più basso, il che permette di ipotizzare che i cluster individuati siano estremamente vicini.
 
 
 #### Clustering con Spectral Clustering
-Utilizzare Spectral Clustering invece di K-medoids ha portato a risultati leggermente migliori, ma quasi indistinguibili, soprattutto per quanto riguarda il Silhouette Score. Tale metodo potrebbe risultare più efficace a fronte di una fase di tuning degli iperparametri.
+Utilizzare Spectral Clustering invece di K-medoids ha portato a risultati leggermente migliori [Fig. 7], ma quasi indistinguibili, soprattutto per quanto riguarda il Silhouette Score. Tale metodo potrebbe risultare più efficace a fronte di una fase di tuning dei numerosi iperparametri.
 
+![Metrics comparison](./static/metrics_comparison_by_score.png)
+*Fig. 7: Confronto metriche misurate a seguito dei diversi metodi analizzati*
 
 #### Considerazioni Silhouette Score
-Valori così comparabili di Silhouette score a prescindere dal metodo di integrazione potrebbe segnificare che un problema presente sia la modalità di determinazione della similarità tra i pazienti, che vengono infatti identificati tutti molto diversi tra di loro [PLOT], distribuendoli nel piano. Visto ciò quanto ottenuto, si è evitato di approfondire ulteriormente l'analisi di questo indice, analizzando ad esempio i singoli valori ottenuti per ogni campione rispetto alla clusterizzazione.
+Valori così comparabili di Silhouette score a prescindere dal metodo di integrazione potrebbe significare che un problema presente sia la modalità di determinazione della similarità tra i pazienti, che vengono infatti identificati tutti molto diversi tra di loro [Fig. 8, 9, 10] soprattutto sotto il profilo di attivazione proteica, distribuendoli nel piano. Visto quanto ottenuto, si è evitato di approfondire ulteriormente l'analisi di questo indice, analizzando ad esempio i singoli valori di Silhouette Score ottenuti per ogni campione rispetto alla clusterizzazione.
+
+![Proteins similarity](./static/proteins_similarity_heatmap.png)
+*Fig. 8: Similarità tra i pazienti nel dataset proteomico*
+
+![miRNA similarity](./static/miRNA_similarity_heatmap.png)
+*Fig. 9: Similarità tra i pazienti nel dataset miRNA*
+
+![mRNA similarity](./static/mRNA_similarity_heatmap.png)
+*Fig. 10: Similarità tra i pazienti nel dataset mRNA*
 
 
 ### Possibili miglioramenti
 #### Selezione feature
-Un primo miglioramento che potrebbe essere apportato è una selezione più accurata delle feature; invece che un numero fisso di feature per dataset, si potrebbe optare per soglie variabili in base alla dimensionalità orginale della sorgente. Oppure invece di considerare la varianza come proxy dell'informatività di una certa feature, la riduzione di dimensionalità potrebbe essere fatta sulla base di altre grandezze che considerano le relazioni tra le feature, come l'indice di correlazione di Pearson, selezionando così solo le feature non espresse da altre evitando informazioni ridondanti e quindi eventuali bias.
-Al costo di perdere interpretabilità dei risultati, alcuni algoritmi valutabili potrebbero essere quelli di feature extraction come PCA o nNMF, in quuesto modo, invece di perdere feature potenzialmente rilevanti in favore di altre, i dati verrebbero proiettati in uno spazio latente a minore dimensionalità ma con una perdita minima di informazione.
+Un primo miglioramento che potrebbe essere apportato è una selezione più accurata delle feature; invece che un numero fisso di feature per dataset, si potrebbe optare per soglie variabili in base alla dimensionalità orginale della sorgente. Oppure invece di considerare la varianza come proxy dell'informatività di una certa feature, la riduzione di dimensionalità potrebbe essere fatta sulla base di altre grandezze che considerano le relazioni tra le feature, come l'indice di correlazione di Pearson [12], selezionando così solo le feature non espresse da altre evitando informazioni ridondanti e quindi eventuali bias.
+Al costo di perdere interpretabilità dei risultati, alcuni algoritmi valutabili potrebbero essere quelli di feature extraction come PCA o nNMF, in questo modo, invece di perdere feature potenzialmente rilevanti in favore di altre, i dati verrebbero proiettati in uno spazio latente a minore dimensionalità ma con una perdita minima di informazione.
 
 #### Algoritmo di clustering
-Ulteriori test consistono in variare l'algoritmo di clustering, utilizzandone ad esempio uno la cui convergenza non si basa su un numero prescelto di cluster ma sulla distanza tra i sample, come ad esempio DBSCAN.
+Ulteriori test consistono in variare l'algoritmo di clustering, utilizzandone ad esempio uno la cui convergenza non si basi su un numero prescelto di cluster ma sulla distanza tra i sample, come ad esempio DBSCAN [13].
 
 #### Integrazione
 In entrambe le modalità di integrazione, si è optato per integrare i dati a monte delle predizioni; non sarebbe da escludere invece l'integrazione a posteriori, ovvero invece di integrare i dati, cercare di integrare i clustering. Ciò esporrebbe al problema di dover scegliere quanta importanza dare alle predizioni di ogni sorgente, tuttavia permetterebbe lo sfruttamente di studi e conoscenze pregresse sul contesto di applicazione.
 
 
 ## CONCLUSIONI
-I risultati ottenuti sono considerabili insoddisfacenti, in quanto nessuna delle strategie di integrazione ha portato a score significativamente migliori rispetto agli altri.
-La costanza nei Silhouette Score suggerisce un problema di fondo nella determinazione della similarità tra i campioni.M entre gli altri indici, considerando i sottotipi identificati da iCLuster, attestano l'inapplicabilità dei metodi messi in atto nel contesto selezionato.
+I risultati ottenuti sono considerabili insoddisfacenti, in quanto nessuna delle strategie di integrazione ha portato a score significativamente migliori rispetto alle altre.
+La costanza nei Silhouette Score suggerisce un problema di fondo nella determinazione della similarità tra i campioni. Mentre gli altri indici, considerando i sottotipi identificati da iCLuster, attestano l'inapplicabilità dei metodi messi in atto nel contesto selezionato.
 
 
 ## BIBLIOGRAFIA
@@ -258,5 +286,9 @@ Hubert, L. and Arabie, P. (1985) ‘Comparing partitions’, Journal of Classifi
 - [9] Wang, B. et al. (2014) ‘Similarity network fusion for aggregating data types on a genomic scale’, Nature Methods, 11(3), pp. 333–337. doi:10.1038/nmeth.2810. 
 
 - [10] Wörheide, M.A. et al. (2021) ‘Multi-omics integration in biomedical research – a metabolomics-centric review’, Analytica Chimica Acta, 1141, pp. 144–162. doi:10.1016/j.aca.2020.10.038. 
-- 
+ 
 - [11] Kaufman, L. and Rousseeuw, P.J. (1990) ‘Finding groups in Data’, Wiley Series in Probability and Statistics [Preprint]. doi:10.1002/9780470316801. 
+
+- [12] On the theory of correlation for any number of variables, treated by a new system of notation. (1907). Proceedings of the Royal Society of London, 79(529), 182–193. doi:10.1098/rspa.1907.0028
+
+- [13] Ester, M., H. P. Kriegel, J. Sander, and X. Xu, “A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise”. In: Proceedings of the 2nd International Conference on Knowledge Discovery and Data Mining, Portland, OR, AAAI Press, pp. 226-231. 1996
