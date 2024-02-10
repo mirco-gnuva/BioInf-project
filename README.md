@@ -1,6 +1,7 @@
 # Disclaimer
 This repository does not implement production ready code. 
 It is not optimized for performance, security or any other aspect.
+Use it at your own risk.
 
 # Description
 ## Project Structure
