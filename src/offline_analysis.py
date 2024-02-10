@@ -1,34 +1,21 @@
-from typing import Generator
-
-import numpy as np
+from data_loaders import ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader
+from settings import PROTEINS_PATH, MIRNA_PATH, MRNA_PATH, PHENOTYPE_PATH, SUBTYPES_PATH
+from src.pipelines import ProteinsPipeline, miRNAPipeline, PhenotypePipeline
+from src.pipeline_steps import RetainMainTumors
 from plotly.graph_objs import Figure
-from tqdm import tqdm
-
-from data_loaders import (ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader, SubtypesDataLoader,
-                          DataLoader)
+from typing import Generator
 import plotly.express as px
 from loguru import logger
 from sys import stdout
-
-from src.models import Data
-from src.pipeline_steps import RetainMainTumors
-from src.pipelines import ProteinsPipeline, Pipeline, miRNAPipeline, PhenotypePipeline, SubTypesPipeline
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-import os
-from scipy.stats import shapiro
 
-PROTEINS_PATH = '../data/mo_PRAD_RPPAArray-20160128.csv'
-MIRNA_PATH = '../data/mo_PRAD_miRNASeqGene-20160128.csv'
-MRNA_PATH = '../data/mo_PRAD_RNASeq2Gene-20160128.csv'
-PHENOTYPE_PATH = '../data/mo_colData.csv'
-SUBTYPES_PATH = '../data/subtypes.csv'
-
+# Set up the logger
 logger.remove()
 logger.add(stdout, level='DEBUG', colorize=True,
            format='<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | {extra[data_type]} | <level>{message}</level>')
 logger.configure(extra={'data_type': 'None'})
 
+# Load the data
 proteins_pipeline = ProteinsPipeline()
 proteins_pipeline.steps = [RetainMainTumors()]
 proteins_loader = ProteinsDataLoader()
@@ -49,12 +36,30 @@ phenotype_loader = PhenotypeDataLoader()
 phenotype_data = phenotype_loader.load(file_path=PHENOTYPE_PATH)
 
 
-# subtypes_pipeline = SubTypesPipeline()
-# subtypes_loader = SubtypesDataLoader()
-# subtypes_data = subtypes_loader.load(file_path=SUBTYPES_PATH)
-
-
 def plot_features_with_nans(show: bool = False) -> Figure:
+    """
+    This function creates a bar plot showing the percentage of features with NaN values in the Proteins, miRNA, and mRNA datasets.
+
+    Parameters
+    ----------
+    show : bool, optional
+        If True, the plot is displayed. If False, the plot is not displayed. The default is False.
+
+    Returns
+    -------
+    Figure
+        The created plotly.graph_objs.Figure object representing the bar plot.
+
+    The function works as follows:
+    1. It calculates the total number of features and the number of features with NaN values in each dataset.
+    2. It calculates the percentage of features with NaN values in each dataset.
+    3. It creates a DataFrame with the calculated data.
+    4. It creates a bar plot from the DataFrame using plotly.
+    5. It updates the layout and traces of the plot.
+    6. If the show parameter is True, it displays the plot.
+    7. It returns the created plot.
+    """
+
     proteins_features = len(proteins_data.columns)
     proteins_features_with_nans = sum(proteins_data.isna().sum() > 0)
     proteins_nans_percentage = proteins_features_with_nans / proteins_features * 100
@@ -89,7 +94,36 @@ def plot_features_with_nans(show: bool = False) -> Figure:
     return fig
 
 
-def plot_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, show: bool = False):
+def plot_nan_percentage_per_feature(data: pd.DataFrame, data_type: str, show: bool = False):
+    """
+    This function creates a bar plot showing the percentage of NaN values per feature in the given dataset.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        The dataset to be analyzed. This should be a pandas DataFrame where each column represents a feature and each row represents a sample.
+
+    data_type : str
+        The type of the data. This is used to label the data in the plot.
+
+    show : bool, optional
+        If True, the plot is displayed. If False, the plot is not displayed. The default is False.
+
+    Returns
+    -------
+    Figure
+        The created plotly.graph_objs.Figure object representing the bar plot.
+
+    The function works as follows:
+    1. It calculates the percentage of NaN values for each feature in the dataset.
+    2. It converts the calculated data to a DataFrame and filters out the features with no NaN values.
+    3. It adds the feature names and the data type to the DataFrame.
+    4. It creates a bar plot from the DataFrame using plotly.
+    5. It updates the layout and traces of the plot.
+    6. If the show parameter is True, it displays the plot.
+    7. It returns the created plot.
+    """
+
     data = data.isna().sum() / len(data) * 100
     data = data.to_frame()
     data.columns = ['NaNs Percentage']
@@ -118,18 +152,53 @@ def plot_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, show: boo
 
 
 def run_all(show: bool = False) -> Generator[Figure, None, None]:
+    """
+    This function generates a series of plots related to the Proteins, miRNA, and mRNA datasets.
+
+    Parameters
+    ----------
+    show : bool, optional
+        If True, each plot is displayed as it is created. If False, the plots are not displayed. The default is False.
+
+    Yields
+    ------
+    Figure
+        The created plotly.graph_objs.Figure object representing the current plot.
+    """
+
     yield plot_features_with_nans(show=show)
-    yield plot_nan_percetage_per_feature(data=proteins_data, data_type='Proteins',
-                                         show=show)
-    yield plot_nan_percetage_per_feature(data=mirna_data, data_type='miRNA',
-                                         show=show)
-    yield plot_nan_percetage_per_feature(data=mrna_data, data_type='mRNA',
-                                         show=show)
+    yield plot_nan_percentage_per_feature(data=proteins_data, data_type='Proteins',
+                                          show=show)
+    yield plot_nan_percentage_per_feature(data=mirna_data, data_type='miRNA',
+                                          show=show)
+    yield plot_nan_percentage_per_feature(data=mrna_data, data_type='mRNA',
+                                          show=show)
     yield plot_features_distribution(show=show)
 
 
 def plot_features_distribution(show: bool) -> Figure:
-    """Plot the features number between the different datasets."""
+    """
+    This function creates a bar plot showing the distribution of features across the Proteins, miRNA, and mRNA datasets.
+
+    Parameters
+    ----------
+    show : bool, optional
+        If True, the plot is displayed. If False, the plot is not displayed. The default is False.
+
+    Returns
+    -------
+    Figure
+        The created plotly.graph_objs.Figure object representing the bar plot.
+
+    The function works as follows:
+    1. It calculates the total number of features in each dataset.
+    2. It calculates the percentage of total features that each dataset represents.
+    3. It creates a DataFrame with the calculated data.
+    4. It creates a bar plot from the DataFrame using plotly.
+    5. It updates the layout and traces of the plot.
+    6. If the show parameter is True, it displays the plot.
+    7. It returns the created plot.
+    """
 
     proteins_features = len(proteins_data.columns)
     mirna_features = len(mirna_data.columns)
