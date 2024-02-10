@@ -1,16 +1,16 @@
-import numpy as np
-import snf.compute
 from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler
+from sklearn.cluster import SpectralClustering
+from sklearn_extra.cluster import KMedoids
 from datetime import datetime
 from itertools import chain
 from typing import Iterable
-from src.models import Data, ProteinsData, miRNAData, mRNAData, Metrics
+from src.models import Data
 from tqdm.auto import tqdm
 from loguru import logger
 from snf import compute
 import pandas as pd
-from sklearn_extra.cluster import KMedoids
-from sklearn.cluster import SpectralClustering
+import numpy as np
+import snf.compute
 
 
 class PipelineStep:
