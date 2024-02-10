@@ -1,6 +1,6 @@
 from pipeline_steps import (PipelineStep, IntersectDataframes, RemoveFFPESamples, FilterByNanPercentage,
-                            FilterByVariance, RetainMainTumors, TruncateBarcode, SimilarityMatrices,
-                            ComputeSNF, ComputeKMedoids, SortByIndex, ComputeMatricesAverage, MinMaxScalerStep)
+                            FilterByVariance, RetainMainTumors, TruncateBarcode,
+                            ComputeSNF, ComputeKMedoids, SortByIndex)
 from datetime import datetime
 from src.models import Data
 from typing import Iterable
@@ -11,6 +11,35 @@ class Pipeline:
     steps: list[PipelineStep]
 
     def __call__(self, data: Data | list[Data], *args, **kwargs) -> Data | Iterable[Data]:
+        """
+        This method runs the pipeline on the given data.
+
+        Parameters
+        ----------
+        data : Data | list[Data]
+            The data to be processed. This can be a single Data object or a list of Data objects.
+
+        *args
+            Variable length argument list.
+
+        **kwargs
+            Arbitrary keyword arguments.
+
+        Returns
+        -------
+        Data | Iterable[Data]
+            The processed data. This can be a single Data object or a list of Data objects, depending on the input.
+
+        The method works as follows:
+        1. It logs the start of the pipeline execution.
+        2. It records the start time of the pipeline execution.
+        3. It runs the first step of the pipeline on the given data and stores the result.
+        4. It iterates over the remaining steps of the pipeline, running each step on the result of the previous step and updating the result.
+        5. It records the end time of the pipeline execution.
+        6. It logs the duration of the pipeline execution.
+        7. It returns the result of the pipeline execution.
+        """
+
         logger.debug(f'Running {self.__class__.__name__} pipeline...')
         start = datetime.now()
 
