@@ -1,0 +1,114 @@
+<mxfile host="app.diagrams.net" modified="2024-02-08T21:50:35.154Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36" version="21.3.7" etag="AkJaoSWOqoYwcyFMWhbA" type="device">
+  <diagram id="b08OqAxVePv6Sa1I8fPX" name="Pagina-1">
+    <mxGraphModel dx="4776" dy="4137" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-10" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-1" target="6OPj72_bPwJZwYSWlsJE-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-1" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/6902/6902893.png;" vertex="1" parent="1">
+          <mxGeometry x="160" y="720" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-4" target="6OPj72_bPwJZwYSWlsJE-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-4" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/1951/1951419.png;" vertex="1" parent="1">
+          <mxGeometry x="160" y="400" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-8" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-6" target="6OPj72_bPwJZwYSWlsJE-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-6" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/4178/4178684.png;" vertex="1" parent="1">
+          <mxGeometry x="160" y="80" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-7" target="6OPj72_bPwJZwYSWlsJE-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-7" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/4103/4103632.png;" vertex="1" parent="1">
+          <mxGeometry x="600" y="224" width="512" height="512" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-11" value="Intersect indexes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeWidth=100;fontSize=100;" vertex="1" parent="1">
+          <mxGeometry x="581" y="-60" width="550" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-17" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-12">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2120" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-12" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/1707/1707647.png;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="224" width="512" height="512" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-14" value="Sort indexes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeWidth=100;fontSize=100;" vertex="1" parent="1">
+          <mxGeometry x="1341" y="-60" width="550" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-20" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-18" target="6OPj72_bPwJZwYSWlsJE-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-18" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/2355/2355692.png;" vertex="1" parent="1">
+          <mxGeometry x="160" y="-240" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-21" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-19" target="6OPj72_bPwJZwYSWlsJE-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-19" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/8448/8448749.png;" vertex="1" parent="1">
+          <mxGeometry x="160" y="1040" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-27" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/6902/6902893.png;" vertex="1" parent="1">
+          <mxGeometry x="2120" y="720" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-28" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/1951/1951419.png;" vertex="1" parent="1">
+          <mxGeometry x="2120" y="400" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-29" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/4178/4178684.png;" vertex="1" parent="1">
+          <mxGeometry x="2120" y="80" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-30" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/2355/2355692.png;" vertex="1" parent="1">
+          <mxGeometry x="2120" y="-240" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-31" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/8448/8448749.png;" vertex="1" parent="1">
+          <mxGeometry x="2120" y="1040" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-33" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-12" target="6OPj72_bPwJZwYSWlsJE-30">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1882" y="362" as="sourcePoint" />
+            <mxPoint x="2130" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-34" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-12" target="6OPj72_bPwJZwYSWlsJE-28">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1892" y="372" as="sourcePoint" />
+            <mxPoint x="2140" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-35" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-12" target="6OPj72_bPwJZwYSWlsJE-27">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1902" y="382" as="sourcePoint" />
+            <mxPoint x="2150" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-36" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=8;" edge="1" parent="1" source="6OPj72_bPwJZwYSWlsJE-12" target="6OPj72_bPwJZwYSWlsJE-31">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1912" y="392" as="sourcePoint" />
+            <mxPoint x="2160" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-15" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/9946/9946758.png;" vertex="1" parent="1">
+          <mxGeometry x="2250" y="-270" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-37" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/9946/9946758.png;" vertex="1" parent="1">
+          <mxGeometry x="2250" y="50" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-38" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/9946/9946758.png;" vertex="1" parent="1">
+          <mxGeometry x="2250" y="370" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-39" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/9946/9946758.png;" vertex="1" parent="1">
+          <mxGeometry x="2250" y="690" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="6OPj72_bPwJZwYSWlsJE-40" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/9946/9946758.png;" vertex="1" parent="1">
+          <mxGeometry x="2250" y="996" width="70" height="70" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
