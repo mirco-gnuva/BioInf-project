@@ -1,16 +1,20 @@
 import os
 
+from plotly.graph_objs import Figure
+
 from data_loaders import ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader, SubtypesDataLoader, \
     DataLoader
 from pipelines import (PhenotypePipeline, MultiDataframesPipeline, miRNAPipeline, mRNAPipeline,
                        ProteinsPipeline, SubTypesPipeline, DownstreamPipeline, Pipeline)
-from src.analysis import get_metrics, get_metrics_comparison_plot, get_metrics_comparison_by_score_plot
-from src.models import Data
-from src.offline_analysis import run_all
-from src.pipeline_steps import SimilarityMatrices, EncodeCategoricalData, KMedoids, ComputeKMedoids, \
+from analysis import get_metrics, get_metrics_comparison_plot, get_metrics_comparison_by_score_plot, \
+    get_silhouette_score_plot, plot_subtypes_distribution, plot_similarity_heatmap
+from models import Data
+from offline_analysis import run_all
+from pipeline_steps import SimilarityMatrices, EncodeCategoricalData, ComputeKMedoids, \
     ComputeMatricesAverage, ComputeSNF, ComputeSpectralClustering
 from loguru import logger
 from sys import stdout
+from slugify import slugify
 
 PROTEINS_PATH = '../data/mo_PRAD_RPPAArray-20160128.csv'
 MIRNA_PATH = '../data/mo_PRAD_miRNASeqGene-20160128.csv'
@@ -28,6 +32,11 @@ def get_data(dataset_path: str, loader: DataLoader, pipeline: Pipeline) -> Data:
     data = loader.load(file_path=dataset_path)
     data = pipeline(data=data)
     return data
+
+
+def save_plot(plot: Figure, extensionless_path: str):
+    plot.write_image(f'{extensionless_path}.png')
+    plot.write_html(f'{extensionless_path}.html')
 
 
 proteins_data = get_data(dataset_path=PROTEINS_PATH,
@@ -71,27 +80,49 @@ spectral_pred = downstream_pipeline(data=[sim_proteins, sim_mirna, sim_mrna])
 encoded_subtypes = EncodeCategoricalData()(data=subtypes_data)['Subtype_Integrative']
 
 proteins_metrics = get_metrics(true_labels=encoded_subtypes, predicted_labels=proteins_pred,
-                               metrics_label='Proteins prediction metrics')
+                               metrics_label='Proteins prediction metrics', similarity_data=sim_proteins)
 mirna_metrics = get_metrics(true_labels=encoded_subtypes, predicted_labels=mirna_pred,
-                            metrics_label='miRNA prediction metrics')
+                            metrics_label='miRNA prediction metrics', similarity_data=sim_mirna)
 mrna_metrics = get_metrics(true_labels=encoded_subtypes, predicted_labels=mrna_pred,
-                           metrics_label='mRNA prediction metrics')
+                           metrics_label='mRNA prediction metrics', similarity_data=sim_mrna)
 avg_metrics = get_metrics(true_labels=encoded_subtypes, predicted_labels=avg_pred,
-                          metrics_label='Average prediction metrics')
+                          metrics_label='Average prediction metrics',
+                          similarity_data=ComputeMatricesAverage()(data=[sim_proteins, sim_mirna, sim_mrna]))
 snf_metrics = get_metrics(true_labels=encoded_subtypes, predicted_labels=snf_pred,
-                          metrics_label='SNF prediction metrics')
-spectral_pred = get_metrics(true_labels=encoded_subtypes, predicted_labels=spectral_pred,
-                            metrics_label='Spectral prediction metrics')
+                          metrics_label='SNF prediction metrics',
+                          similarity_data=ComputeSNF()(data=[sim_proteins, sim_mirna, sim_mrna]))
+spectral_metrics = get_metrics(true_labels=encoded_subtypes, predicted_labels=spectral_pred,
+                               metrics_label='Spectral prediction metrics',
+                               similarity_data=ComputeSNF()(data=[sim_proteins, sim_mirna, sim_mrna]))
 
-proteins_metrics.plot().write_image('../plots/proteins_metrics.png')
-mirna_metrics.plot().write_image('../plots/mirna_metrics.png')
-mrna_metrics.plot().write_image('../plots/mrna_metrics.png')
-avg_metrics.plot().write_image('../plots/avg_metrics.png')
-snf_metrics.plot().write_image('../plots/snf_metrics.png')
-spectral_pred.plot().write_image('../plots/spectral_pred.png')
+save_plot(proteins_metrics.plot(), '../plots/proteins_metrics')
+save_plot(mirna_metrics.plot(), '../plots/mirna_metrics')
+save_plot(mrna_metrics.plot(), '../plots/mrna_metrics')
+save_plot(avg_metrics.plot(), '../plots/avg_metrics')
+save_plot(snf_metrics.plot(), '../plots/snf_metrics')
+save_plot(spectral_metrics.plot(), '../plots/spectral_metrics')
+
+save_plot(get_metrics_comparison_plot(
+    [proteins_metrics, mirna_metrics, mrna_metrics, avg_metrics, snf_metrics, spectral_metrics]),
+    '../plots/metrics_comparison')
+
+save_plot(get_metrics_comparison_by_score_plot(
+    [proteins_metrics, mirna_metrics, mrna_metrics, avg_metrics, snf_metrics, spectral_metrics]),
+    '../plots/metrics_comparison_by_score')
+
+save_plot(get_silhouette_score_plot(predicted_labels=spectral_pred,
+                                    similarity_data=ComputeSNF()(data=[sim_proteins, sim_mirna, sim_mrna])),
+          '../plots/silhouette_score')
+
+save_plot(plot_subtypes_distribution(subtypes_data), '../plots/subtypes_distribution')
+
+save_plot(plot_similarity_heatmap(sim_proteins, data_type='Proteins'), '../plots/proteins_similarity_heatmap')
+save_plot(plot_similarity_heatmap(sim_mirna, data_type='miRNA'), '../plots/mirna_similarity_heatmap')
+save_plot(plot_similarity_heatmap(sim_mrna, data_type='mRNA'), '../plots/mrna_similarity_heatmap')
+
+offline_plots = run_all()
+
+for plot in offline_plots:
+    save_plot(plot, f'../plots/{slugify(plot.layout.title.text)}')
 
 
-get_metrics_comparison_plot([proteins_metrics, mirna_metrics, mrna_metrics, avg_metrics, snf_metrics, spectral_pred]).write_image('../plots/metrics_comparison.png')
-get_metrics_comparison_by_score_plot([proteins_metrics, mirna_metrics, mrna_metrics, avg_metrics, snf_metrics, spectral_pred]).write_image('../plots/metrics_comparison_by_score.png')
-
-run_all(plots_path=os.path.join('..', 'plots'))

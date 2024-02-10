@@ -407,7 +407,11 @@ class SimilarityMatrices(PipelineStep):
         logger.debug(f'Computing similarity matrix...')
         encoder = EncodeCategoricalData()
         encoded_data = [encoder(d) for d in data]
-        matrices = compute.make_affinity(encoded_data, K=20, normalize=False)
+
+        scalser = ZScoreScaler()
+        scaled_data = [scalser(d) for d in encoded_data]
+
+        matrices = compute.make_affinity(scaled_data, K=20, normalize=False)
         index = data[0].index
         similarity_matrix = [pd.DataFrame(matrix, index=index, columns=index) for matrix in matrices]
         logger.debug('Similarity matrix computed.')
@@ -566,7 +570,7 @@ class ComputeSpectralClustering(DownstreamStep):
 
         logger.debug('Computing Spectral Clustering...')
 
-        clusters = SpectralClustering(n_clusters=clusters_n, affinity='precomputed').fit_predict(data)
+        clusters = SpectralClustering(n_clusters=clusters_n, affinity='precomputed', n_neighbors=20).fit_predict(data)
         clusters = pd.Series(clusters, index=data.index)
 
         logger.debug('Clustering computed.')

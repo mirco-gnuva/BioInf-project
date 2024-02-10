@@ -1,4 +1,7 @@
+from typing import Generator
+
 import numpy as np
+from plotly.graph_objs import Figure
 from tqdm import tqdm
 
 from data_loaders import (ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader, SubtypesDataLoader,
@@ -51,7 +54,7 @@ phenotype_data = phenotype_loader.load(file_path=PHENOTYPE_PATH)
 # subtypes_data = subtypes_loader.load(file_path=SUBTYPES_PATH)
 
 
-def plot_features_with_nans(dump_path: str, show: bool = False):
+def plot_features_with_nans(show: bool = False) -> Figure:
     proteins_features = len(proteins_data.columns)
     proteins_features_with_nans = sum(proteins_data.isna().sum() > 0)
     proteins_nans_percentage = proteins_features_with_nans / proteins_features * 100
@@ -69,7 +72,8 @@ def plot_features_with_nans(dump_path: str, show: bool = False):
                          ['mRNA', mrna_features_with_nans, mrna_features_with_nans_percentage]],
                         columns=['Data Type', 'NaNs features count', 'Percentage'])
 
-    fig = px.bar(data, x='Data Type', y='Percentage', hover_data=['NaNs features count'], )
+    fig = px.bar(data, x='Data Type', y='Percentage', hover_data=['NaNs features count'], text='Percentage',
+                 color_discrete_sequence=px.colors.qualitative.Safe)
 
     fig.update_layout(title='Total Features vs Features with NaNs',
                       title_x=0.5,
@@ -77,13 +81,15 @@ def plot_features_with_nans(dump_path: str, show: bool = False):
                       yaxis_title='% of features with NaNs',
                       yaxis_range=[0, 100])
 
+    fig.update_traces(textposition='outside', texttemplate='%{text:.2f}%')
+
     if show:
         fig.show()
 
-    fig.write_image(dump_path)
+    return fig
 
 
-def plot_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, dump_path: str, show: bool = False):
+def plot_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, show: bool = False):
     data = data.isna().sum() / len(data) * 100
     data = data.to_frame()
     data.columns = ['NaNs Percentage']
@@ -94,72 +100,58 @@ def plot_nan_percetage_per_feature(data: pd.DataFrame, data_type: str, dump_path
     fig = px.bar(data, x='Feature', y='NaNs Percentage',
                  color='Feature',
                  hover_data=['NaNs Percentage'],
-                 color_discrete_sequence=px.colors.qualitative.Safe)
+                 color_discrete_sequence=px.colors.qualitative.Safe,
+                 text='NaNs Percentage')
 
-    fig.update_layout(title='NaNs Percentage per Feature',
+    fig.update_layout(title=f'NaNs Percentage per Feature ({data_type})',
                       title_x=0.5,
                       xaxis_title='Feature',
                       yaxis_title='% of NaNs',
                       yaxis_range=[0, 100])
 
+    fig.update_traces(textposition='outside', texttemplate='%{text:.2f}%')
+
     if show:
         fig.show()
 
-    fig.write_image(dump_path)
+    return fig
 
 
-def plot_features_pearson_correlation(data: pd.DataFrame, data_type: str, dump_path: str, show: bool = False):
-    # corr = data.corr()
-    corr = np.corrcoef(data, rowvar=False)
-    triu_indices = np.triu_indices(corr.shape[0], 1)
+def run_all(show: bool = False) -> Generator[Figure, None, None]:
+    yield plot_features_with_nans(show=show)
+    yield plot_nan_percetage_per_feature(data=proteins_data, data_type='Proteins',
+                                         show=show)
+    yield plot_nan_percetage_per_feature(data=mirna_data, data_type='miRNA',
+                                         show=show)
+    yield plot_nan_percetage_per_feature(data=mrna_data, data_type='mRNA',
+                                         show=show)
+    yield plot_features_distribution(show=show)
 
-    feature_pairs = ((data.columns[i], data.columns[j]) for i, j in zip(*triu_indices))
 
-    correlations = corr[triu_indices]
-    result = np.array([(pair[0], pair[1], corr) for pair, corr in zip(feature_pairs, correlations)])
+def plot_features_distribution(show: bool) -> Figure:
+    """Plot the features number between the different datasets."""
 
-    # raw_data = []
-    # for i in tqdm(range(len(corr)), leave=False):
-    #     for j in tqdm(range(len(corr)), leave=False):
-    #         raw_data.append({'Feature 1': corr.index[i],
-    #                          'Feature 2': corr.columns[j],
-    #                          'Correlation': corr.iloc[i, j]})
-    #
-    # df = pd.DataFrame(raw_data, columns=['Feature 1', 'Feature 2', 'Correlation'])
+    proteins_features = len(proteins_data.columns)
+    mirna_features = len(mirna_data.columns)
+    mrna_features = len(mrna_data.columns)
 
-    # df = pd.DataFrame(({'Feature 1': corr.index[i],
-    #                     'Feature 2': corr.columns[j],
-    #                     'Correlation': corr.iloc[i, j]} for i in range(len(corr)) for j in range(len(corr))),
-    #                   columns=['Feature 1', 'Feature 2', 'Correlation'])
-    df = corr.stack()
-    df.index.names = ['Feature 1', 'Feature 2']
-    df = df.reset_index(level=['Feature 2']).reset_index()
-    df.columns = ['Feature 1', 'Feature 2', 'Correlation']
+    total_features = proteins_features + mirna_features + mrna_features
 
-    fig = px.density_heatmap(df, x='Feature 1', y='Feature 2', z='Correlation')
+    data = pd.DataFrame([['Proteins', proteins_features / total_features * 100],
+                         ['miRNA', mirna_features / total_features * 100],
+                         ['mRNA', mrna_features / total_features * 100]],
+                        columns=['Data Type', 'Features %'])
 
-    fig.update_layout(title=f'Features Pearson correlation ({data_type})',
+    fig = px.bar(data, x='Data Type', y='Features %', hover_data=['Features %'], text='Features %', color='Data Type',
+                 color_discrete_sequence=px.colors.qualitative.Safe)
+
+    fig.update_layout(title='Features count per source',
                       title_x=0.5,
-                      xaxis_title='Feature',
-                      yaxis_title='Feature')
+                      xaxis_title='Source',
+                      yaxis_title='Features Count')
+    fig.update_traces(texttemplate='%{text:.2}%', textposition='outside')
 
     if show:
         fig.show()
 
-    fig.write_image(dump_path)
-
-
-def run_all(plots_path: str = '../plots', show: bool = False):
-    plot_features_with_nans(dump_path=os.path.join(plots_path, 'nans_perc_plot.png'), show=show)
-    plot_nan_percetage_per_feature(data=proteins_data, data_type='Proteins',
-                                   dump_path=os.path.join(plots_path, 'proteins_nans_perc.png'), show=show)
-    plot_nan_percetage_per_feature(data=mirna_data, data_type='miRNA',
-                                   dump_path=os.path.join(plots_path, 'mirna_nans_perc.png'), show=show)
-    plot_nan_percetage_per_feature(data=mrna_data, data_type='mRNA',
-                                   dump_path=os.path.join(plots_path, 'mrna_nans_perc.png'), show=show)
-    # plot_features_pearson_correlation(data=proteins_data, data_type='Proteins',
-    #                                   dump_path=os.path.join(plots_path, 'proteins_corr.png'), show=show)
-    # plot_features_pearson_correlation(data=mirna_data, data_type='miRNA',
-    #                                   dump_path=os.path.join(plots_path, 'mirna_corr.png'), show=show)
-    plot_features_pearson_correlation(data=mrna_data, data_type='mRNA',
-                                      dump_path=os.path.join(plots_path, 'mrna_corr.png'), show=show)
+    return fig
