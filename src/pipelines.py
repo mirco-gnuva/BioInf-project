@@ -2,9 +2,9 @@ from pipeline_steps import (PipelineStep, IntersectDataframes, RemoveFFPESamples
                             FilterByVariance, RetainMainTumors, TruncateBarcode,
                             ComputeSNF, ComputeKMedoids, SortByIndex)
 from datetime import datetime
-from src.models import Data
 from typing import Iterable
 from loguru import logger
+from models import Data
 
 
 class Pipeline:
