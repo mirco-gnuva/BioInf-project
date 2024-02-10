@@ -24,7 +24,7 @@ library("curatedTCGAData")
 library(TCGAbiolinks)
 
 # Define download directory
-directory_path = './data/'
+directory_path = '../data/'
 
 if (file.exists(directory_path)) {
   print(paste("Directory", directory_path, "already exists."))
