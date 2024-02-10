@@ -1,7 +1,7 @@
 from data_loaders import ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader
 from settings import PROTEINS_PATH, MIRNA_PATH, MRNA_PATH, PHENOTYPE_PATH, SUBTYPES_PATH
-from src.pipelines import ProteinsPipeline, miRNAPipeline, PhenotypePipeline
-from src.pipeline_steps import RetainMainTumors
+from pipelines import ProteinsPipeline, miRNAPipeline, PhenotypePipeline
+from pipeline_steps import RetainMainTumors
 from plotly.graph_objs import Figure
 from typing import Generator
 import plotly.express as px
