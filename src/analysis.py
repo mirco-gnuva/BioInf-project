@@ -1,6 +1,6 @@
 from sklearn.metrics import rand_score, adjusted_rand_score, normalized_mutual_info_score, silhouette_score, \
     silhouette_samples
-from src.models import SubtypesData, NanPercentage, Metrics, RandScore, AdjustedRandScore, \
+from models import SubtypesData, NanPercentage, Metrics, RandScore, AdjustedRandScore, \
     NormalizedMutualInfoScore, SilhouetteScore
 from sklearn.preprocessing import MinMaxScaler
 from plotly.graph_objs import Figure
