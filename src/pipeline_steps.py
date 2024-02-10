@@ -4,7 +4,7 @@ from sklearn_extra.cluster import KMedoids
 from datetime import datetime
 from itertools import chain
 from typing import Iterable
-from src.models import Data
+from models import Data
 from tqdm.auto import tqdm
 from loguru import logger
 from snf import compute
