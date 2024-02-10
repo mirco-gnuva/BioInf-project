@@ -1,1 +1,5 @@
-from pydantic_settings import BaseSettings
+PROTEINS_PATH = '../data/mo_PRAD_RPPAArray-20160128.csv'
+MIRNA_PATH = '../data/mo_PRAD_miRNASeqGene-20160128.csv'
+MRNA_PATH = '../data/mo_PRAD_RNASeq2Gene-20160128.csv'
+PHENOTYPE_PATH = '../data/mo_colData.csv'
+SUBTYPES_PATH = '../data/subtypes.csv'

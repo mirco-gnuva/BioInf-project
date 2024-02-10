@@ -6,19 +6,13 @@ from pipeline_steps import SimilarityMatrices, EncodeCategoricalData, ComputeKMe
     ComputeMatricesAverage, ComputeSNF, ComputeSpectralClustering
 from data_loaders import ProteinsDataLoader, miRNADataLoader, mRNADataLoader, PhenotypeDataLoader, SubtypesDataLoader, \
     DataLoader
+from settings import PROTEINS_PATH, MIRNA_PATH, MRNA_PATH, PHENOTYPE_PATH, SUBTYPES_PATH
 from plotly.graph_objs import Figure
 from offline_analysis import run_all
 from slugify import slugify
 from loguru import logger
 from models import Data
 from sys import stdout
-
-# Set the paths to the datasets
-PROTEINS_PATH = '../data/mo_PRAD_RPPAArray-20160128.csv'
-MIRNA_PATH = '../data/mo_PRAD_miRNASeqGene-20160128.csv'
-MRNA_PATH = '../data/mo_PRAD_RNASeq2Gene-20160128.csv'
-PHENOTYPE_PATH = '../data/mo_colData.csv'
-SUBTYPES_PATH = '../data/subtypes.csv'
 
 # Set up the logger
 logger.remove()
