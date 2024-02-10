@@ -24,7 +24,7 @@ library("curatedTCGAData")
 library(TCGAbiolinks)
 
 # Define download directory
-directory_path = './data/'
+directory_path = '../data/'
 
 if (file.exists(directory_path)) {
   print(paste("Directory", directory_path, "already exists."))
@@ -62,3 +62,5 @@ subtypes_path <- paste(directory_path, "subtypes.csv", sep="")
 print(paste("Saving subtypes to", subtypes_path))
 
 write.csv(subtypes, file = subtypes_path, row.names = FALSE)
+
+sessionInfo();
