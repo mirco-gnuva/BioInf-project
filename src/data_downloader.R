@@ -62,3 +62,5 @@ subtypes_path <- paste(directory_path, "subtypes.csv", sep="")
 print(paste("Saving subtypes to", subtypes_path))
 
 write.csv(subtypes, file = subtypes_path, row.names = FALSE)
+
+sessionInfo();
